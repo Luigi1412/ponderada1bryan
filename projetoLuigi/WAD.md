@@ -108,3 +108,7 @@ CREATE TABLE avaliacoes (
   FOREIGN KEY (user_id) REFERENCES users(id),
   FOREIGN KEY (room_id) REFERENCES rooms(id)
 );
+
+
+```
+<img src="https://github.com/Luigi1412/ponderada1bryan/blob/40b5809ca40699ed083fa99233d8ff9fdf1fb393/projetoLuigi/assets/Captura%20de%20Tela%202025-05-07%20a%CC%80s%2012.52.51.png"></img>
