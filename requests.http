@@ -1,0 +1,103 @@
+### Variáveis
+@baseUrl = http://localhost:3000/api
+
+### Criar uma nova tarefa
+POST {{baseUrl}}/tarefas
+Content-Type: application/json
+
+{
+    "nome": "Implementar autenticação2",
+    "descricao": "Adicionar sistema de login com JWT pt2"
+}
+
+### Listar todas as tarefas
+GET {{baseUrl}}/tarefas
+
+### Atualizar uma tarefa
+PUT {{baseUrl}}/tarefas/1
+Content-Type: application/json
+
+{
+    "nome": "Implementar autenticação 3",
+    "descricao": "Adicionar sistema de login com JWT e refresh token",
+    "status": "em_andamento"
+}
+
+### Excluir uma tarefa
+DELETE {{baseUrl}}/tarefas/1
+
+### Criar uma categoria de quarto
+POST {{baseUrl}}/categorias_quartos
+Content-Type: application/json
+
+{
+    "nome": "Suite Master",
+    "descricao": "Quarto luxuoso com vista para o mar"
+}
+
+### Criar um usuário
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+    "nome": "João Silva",
+    "email": "joao@email.com",
+    "senha": "senha123"
+}
+
+### Criar um quarto
+POST {{baseUrl}}/rooms
+Content-Type: application/json
+
+{
+    "numero": 101,
+    "descricao": "Quarto com vista para o mar",
+    "capacidade": 2,
+    "categoria_id": 1
+}
+
+### Criar uma reserva
+POST {{baseUrl}}/reservations
+Content-Type: application/json
+
+{
+    "user_id": 1,
+    "room_id": 1,
+    "data_checkin": "2024-03-20T14:00:00Z",
+    "data_checkout": "2024-03-25T12:00:00Z",
+    "preco_reserva": 1500.00
+}
+
+### Criar um pagamento
+POST {{baseUrl}}/pagamentos
+Content-Type: application/json
+
+{
+    "reserva_id": 1,
+    "valor": 1500.00,
+    "metodo": "cartao_credito"
+}
+
+### Criar uma avaliação
+POST {{baseUrl}}/avaliacoes
+Content-Type: application/json
+
+{
+    "user_id": 1,
+    "room_id": 1,
+    "nota": 5,
+    "comentario": "Excelente estadia, quarto muito confortável"
+}
+
+### Criar um endereço
+POST {{baseUrl}}/enderecos
+Content-Type: application/json
+
+{
+    "user_id": 1,
+    "rua": "Rua das Flores",
+    "numero": "123",
+    "cidade": "São Paulo",
+    "estado": "SP",
+    "cep": "01234567"
+} 

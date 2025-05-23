@@ -1,38 +1,27 @@
-# API de Gerenciamento de Tarefas
+# Task Manager API
 
-Este projeto implementa uma API RESTful para gerenciamento de tarefas, utilizando Node.js, Express e PostgreSQL.
+Uma API REST para gerenciamento de tarefas construída com Node.js, Express e PostgreSQL, seguindo a arquitetura MVC.
 
-## Estrutura do Projeto
-
-O projeto segue a arquitetura MVC (Model-View-Controller):
-
-```
-.
-├── config/
-│   └── database.js     # Configuração do banco de dados
-├── controllers/
-│   └── TarefaController.js  # Controlador de tarefas
-├── migrations/
-│   └── init.sql       # Script de inicialização do banco
-├── routes/
-│   └── index.js       # Definição das rotas
-├── .env              # Variáveis de ambiente
-├── server.js         # Arquivo principal do servidor
-└── package.json      # Dependências do projeto
-```
-
-## Requisitos
+## Tecnologias Utilizadas
 
 - Node.js
+- Express.js
 - PostgreSQL
+- dotenv (para variáveis de ambiente)
+- cors (para habilitar CORS)
+
+## Pré-requisitos
+
+- Node.js (v14 ou superior)
+- PostgreSQL (v12 ou superior)
 - npm ou yarn
 
 ## Configuração
 
 1. Clone o repositório:
 ```bash
-git clone [URL_DO_REPOSITÓRIO]
-cd [NOME_DO_PROJETO]
+git clone [URL_DO_SEU_REPOSITORIO]
+cd [NOME_DO_DIRETORIO]
 ```
 
 2. Instale as dependências:
@@ -41,9 +30,8 @@ npm install
 ```
 
 3. Configure as variáveis de ambiente:
-- Crie um arquivo `.env` na raiz do projeto
-- Copie o conteúdo abaixo e ajuste conforme suas configurações:
-```
+Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+```env
 DB_HOST=localhost
 DB_PORT=5432
 DB_USER=seu_usuario
@@ -52,10 +40,47 @@ DB_NAME=task_manager
 PORT=3000
 ```
 
-4. Inicialize o banco de dados:
+4. Execute as migrações do banco de dados:
 ```bash
-psql -U seu_usuario -f migrations/init.sql
+npm run init-db
 ```
+
+## Estrutura do Projeto
+
+```
+.
+├── config/
+│   └── database.js     # Configuração do PostgreSQL
+├── controllers/
+│   └── TarefaController.js  # Controlador de tarefas
+├── routes/
+│   └── index.js       # Definição das rotas
+├── init.sql           # Script de inicialização do banco
+├── server.js          # Arquivo principal do servidor
+├── .env               # Variáveis de ambiente
+└── README.md          # Documentação
+```
+
+## Endpoints da API
+
+### Tarefas
+
+- **POST /api/tarefas**
+  - Cria uma nova tarefa
+  - Body: `{ "nome": "string", "descricao": "string" }`
+
+- **GET /api/tarefas**
+  - Lista todas as tarefas
+
+- **GET /api/tarefas/:id**
+  - Obtém uma tarefa específica
+
+- **PUT /api/tarefas/:id**
+  - Atualiza uma tarefa
+  - Body: `{ "nome": "string", "descricao": "string", "status": "string" }`
+
+- **DELETE /api/tarefas/:id**
+  - Remove uma tarefa
 
 ## Executando o Projeto
 
@@ -66,43 +91,35 @@ npm start
 
 2. O servidor estará rodando em `http://localhost:3000`
 
-## Endpoints da API
+## Testes
 
-### Tarefas
+Para testar os endpoints, você pode usar ferramentas como Postman ou cURL:
 
-- **GET /api/tarefas**
-  - Lista todas as tarefas
-  - Retorno: Array de tarefas
+```bash
+# Criar uma tarefa
+curl -X POST http://localhost:3000/api/tarefas \
+  -H "Content-Type: application/json" \
+  -d '{"nome":"Tarefa 1","descricao":"Descrição da tarefa"}'
 
-- **POST /api/tarefas**
-  - Cria uma nova tarefa
-  - Body: `{ "nome": "string", "descricao": "string" }`
-  - Retorno: Tarefa criada
+# Listar tarefas
+curl http://localhost:3000/api/tarefas
 
-- **PUT /api/tarefas/:id**
-  - Atualiza uma tarefa existente
-  - Body: `{ "nome": "string", "descricao": "string", "status": "string" }`
-  - Retorno: Tarefa atualizada
+# Atualizar uma tarefa
+curl -X PUT http://localhost:3000/api/tarefas/1 \
+  -H "Content-Type: application/json" \
+  -d '{"nome":"Tarefa Atualizada","descricao":"Nova descrição","status":"completo"}'
 
-- **DELETE /api/tarefas/:id**
-  - Remove uma tarefa
-  - Retorno: Mensagem de sucesso
+# Excluir uma tarefa
+curl -X DELETE http://localhost:3000/api/tarefas/1
+```
 
 ## Arquitetura MVC
 
-### Model
-- Representado pela estrutura da tabela `tarefas` no PostgreSQL
-- Gerencia o acesso e manipulação dos dados
+Este projeto segue a arquitetura Model-View-Controller (MVC):
 
-### Controller
-- Localizado em `controllers/TarefaController.js`
-- Implementa a lógica de negócio
-- Processa requisições e retorna respostas
-
-### View
-- Implementada como uma API REST
-- Retorna dados em formato JSON
-- Pode ser consumida por qualquer cliente HTTP
+- **Model**: Representado pela estrutura do banco de dados (tabela `tarefas`)
+- **Controller**: Implementado em `TarefaController.js`, gerencia a lógica de negócios
+- **View**: A API REST serve como interface, retornando dados em formato JSON
 
 ## Contribuição
 
@@ -110,4 +127,4 @@ npm start
 2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
 3. Commit suas mudanças (`git commit -am 'Adiciona nova feature'`)
 4. Push para a branch (`git push origin feature/nova-feature`)
-5. Crie um Pull Request
+5. Crie um Pull Request 

@@ -2,27 +2,50 @@
 
 ## Visão Geral da Arquitetura
 
-Este projeto implementa uma API REST seguindo a arquitetura MVC (Model-View-Controller), utilizando Node.js com Express para o backend e PostgreSQL como banco de dados.
+Este projeto implementa uma API REST para gerenciamento de tarefas seguindo a arquitetura MVC (Model-View-Controller). A aplicação é construída usando Node.js com Express.js como framework web e PostgreSQL como banco de dados.
 
-### Diagrama de Arquitetura
+### Arquitetura MVC
 
 ```
-┌─────────────┐     ┌──────────────┐     ┌─────────────┐
-│   Cliente   │     │  Controller  │     │    Model    │
-│    HTTP     │────▶│   (Express)  │────▶│ (PostgreSQL)│
-│   Request   │     │    Router    │     │    Data     │
-└─────────────┘     └──────────────┘     └─────────────┘
-       ▲                   │                    │
-       │                   │                    │
-       └───────────────────┴────────────────────┘
-              Response (JSON/Error)
+[Cliente HTTP] <-> [Express (Router)] <-> [Controller] <-> [Model (PostgreSQL)]
 ```
 
-## Componentes do Sistema
+#### Componentes
 
-### 1. Model (Banco de Dados)
+1. **Model**
+   - Implementado através da estrutura do banco de dados PostgreSQL
+   - Tabela `tarefas` com campos:
+     - `id` (SERIAL PRIMARY KEY)
+     - `nome` (VARCHAR)
+     - `descricao` (TEXT)
+     - `status` (VARCHAR)
+     - `created_at` (TIMESTAMP)
+     - `updated_at` (TIMESTAMP)
 
-#### Estrutura da Tabela
+2. **View**
+   - Interface REST API
+   - Retorna dados em formato JSON
+   - Endpoints documentados no README.md
+
+3. **Controller**
+   - `TarefaController.js`
+   - Implementa a lógica de negócios
+   - Gerencia operações CRUD
+   - Trata erros e validações
+
+### Fluxo de Dados
+
+1. O cliente faz uma requisição HTTP para um endpoint
+2. O Router do Express direciona a requisição para o Controller apropriado
+3. O Controller processa a requisição e interage com o banco de dados
+4. O banco de dados retorna os dados solicitados
+5. O Controller formata a resposta
+6. A resposta é enviada ao cliente em formato JSON
+
+## Detalhes Técnicos
+
+### Banco de Dados
+
 ```sql
 CREATE TABLE tarefas (
     id SERIAL PRIMARY KEY,
@@ -34,80 +57,101 @@ CREATE TABLE tarefas (
 );
 ```
 
-### 2. Controller
+### Endpoints da API
 
-O controlador (`TarefaController.js`) implementa as seguintes operações:
-- `criarTarefa`: Insere nova tarefa no banco
-- `listarTarefas`: Recupera todas as tarefas
-- `editarTarefa`: Atualiza uma tarefa existente
-- `excluirTarefa`: Remove uma tarefa do banco
+#### POST /api/tarefas
+- **Função**: Criar nova tarefa
+- **Controller**: `criarTarefa`
+- **Payload**:
+  ```json
+  {
+    "nome": "string",
+    "descricao": "string"
+  }
+  ```
 
-### 3. Rotas (Routes)
+#### GET /api/tarefas
+- **Função**: Listar todas as tarefas
+- **Controller**: `listarTarefas`
+- **Resposta**:
+  ```json
+  [
+    {
+      "id": "number",
+      "nome": "string",
+      "descricao": "string",
+      "status": "string",
+      "created_at": "timestamp",
+      "updated_at": "timestamp"
+    }
+  ]
+  ```
 
-Endpoints da API:
-- `POST /api/tarefas`: Criar tarefa
-- `GET /api/tarefas`: Listar tarefas
-- `PUT /api/tarefas/:id`: Atualizar tarefa
-- `DELETE /api/tarefas/:id`: Excluir tarefa
+#### GET /api/tarefas/:id
+- **Função**: Obter tarefa específica
+- **Controller**: `obterTarefa`
+- **Parâmetros**: `id` (número)
 
-## Fluxo de Dados
+#### PUT /api/tarefas/:id
+- **Função**: Atualizar tarefa
+- **Controller**: `editarTarefa`
+- **Payload**:
+  ```json
+  {
+    "nome": "string",
+    "descricao": "string",
+    "status": "string"
+  }
+  ```
 
-1. **Criação de Tarefa**
-   ```
-   Cliente → POST /api/tarefas → Controller → Model → DB
-   ```
+#### DELETE /api/tarefas/:id
+- **Função**: Excluir tarefa
+- **Controller**: `excluirTarefa`
+- **Parâmetros**: `id` (número)
 
-2. **Listagem de Tarefas**
-   ```
-   Cliente → GET /api/tarefas → Controller → Model → DB
-   ```
+### Tratamento de Erros
 
-3. **Atualização de Tarefa**
-   ```
-   Cliente → PUT /api/tarefas/:id → Controller → Model → DB
-   ```
+- Erros 400: Requisições inválidas
+- Erros 404: Recurso não encontrado
+- Erros 500: Erro interno do servidor
 
-4. **Exclusão de Tarefa**
-   ```
-   Cliente → DELETE /api/tarefas/:id → Controller → Model → DB
-   ```
-
-## Tecnologias Utilizadas
-
-- **Backend**: Node.js com Express
-- **Banco de Dados**: PostgreSQL
-- **Middleware**: 
-  - `cors`: Para permitir requisições cross-origin
-  - `body-parser`: Para processar requisições JSON
-  - `dotenv`: Para gerenciar variáveis de ambiente
-
-## Segurança
+### Segurança
 
 - Validação de entrada em todas as rotas
-- Tratamento de erros centralizado
-- Uso de variáveis de ambiente para configurações sensíveis
-- Sanitização de queries SQL usando parametrização
+- Sanitização de dados antes de interagir com o banco
+- Uso de variáveis de ambiente para dados sensíveis
+- Implementação de CORS
 
-## Escalabilidade
+### Performance
 
-O sistema foi projetado considerando:
-- Separação clara de responsabilidades (MVC)
-- Modularização do código
-- Conexão pooling para o banco de dados
-- Possibilidade de implementar cache
+- Conexão com banco de dados via pool
+- Queries otimizadas com índices apropriados
+- Paginação implementada para grandes conjuntos de dados
 
-## Manutenção
+## Dependências
 
-Para manter o sistema:
-1. Monitorar logs do servidor
-2. Realizar backups regulares do banco
-3. Manter dependências atualizadas
-4. Seguir padrões de código estabelecidos
+- `express`: Framework web
+- `pg`: Cliente PostgreSQL
+- `dotenv`: Gerenciamento de variáveis de ambiente
+- `cors`: Middleware para CORS
 
-## Melhorias Futuras
+## Monitoramento e Logs
+
+- Logs de erro detalhados
+- Endpoint de health check (/health)
+- Monitoramento de conexões do banco de dados
+
+## Considerações de Deployment
+
+- Necessário PostgreSQL >= 12
+- Node.js >= 14
+- Variáveis de ambiente configuradas
+- Porta 3000 disponível (ou configurável via PORT)
+
+## Próximos Passos
 
 1. Implementar autenticação e autorização
-2. Adicionar cache para otimizar consultas frequentes
-3. Implementar sistema de logs mais robusto
-4. Adicionar testes automatizados
-5. Implementar documentação automática da API (Swagger)
+2. Adicionar testes automatizados
+3. Implementar cache para melhorar performance
+4. Adicionar documentação OpenAPI/Swagger
+5. Implementar rate limiting 
