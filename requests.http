@@ -1,13 +1,15 @@
 ### Variáveis
 @baseUrl = http://localhost:3000/api
 
+### ========== TAREFAS ==========
+
 ### Criar uma nova tarefa
 POST {{baseUrl}}/tarefas
 Content-Type: application/json
 
 {
-    "nome": "Implementar autenticação2",
-    "descricao": "Adicionar sistema de login com JWT pt2"
+    "nome": "Implementar autenticação",
+    "descricao": "Adicionar sistema de login com JWT"
 }
 
 ### Listar todas as tarefas
@@ -18,13 +20,15 @@ PUT {{baseUrl}}/tarefas/1
 Content-Type: application/json
 
 {
-    "nome": "Implementar autenticação 3",
+    "nome": "Implementar autenticação",
     "descricao": "Adicionar sistema de login com JWT e refresh token",
     "status": "em_andamento"
 }
 
 ### Excluir uma tarefa
 DELETE {{baseUrl}}/tarefas/1
+
+### ========== CATEGORIAS DE QUARTOS ==========
 
 ### Criar uma categoria de quarto
 POST {{baseUrl}}/categorias_quartos
@@ -34,6 +38,26 @@ Content-Type: application/json
     "nome": "Suite Master",
     "descricao": "Quarto luxuoso com vista para o mar"
 }
+
+### Listar todas as categorias
+GET {{baseUrl}}/categorias_quartos
+
+### Obter uma categoria específica
+GET {{baseUrl}}/categorias_quartos/1
+
+### Atualizar uma categoria
+PUT {{baseUrl}}/categorias_quartos/1
+Content-Type: application/json
+
+{
+    "nome": "Suite Premium",
+    "descricao": "Quarto luxuoso com vista para o mar e hidromassagem"
+}
+
+### Excluir uma categoria
+DELETE {{baseUrl}}/categorias_quartos/1
+
+### ========== USUÁRIOS ==========
 
 ### Criar um usuário
 POST {{baseUrl}}/users
@@ -45,6 +69,27 @@ Content-Type: application/json
     "senha": "senha123"
 }
 
+### Listar todos os usuários
+GET {{baseUrl}}/users
+
+### Obter um usuário específico
+GET {{baseUrl}}/users/1
+
+### Atualizar um usuário
+PUT {{baseUrl}}/users/1
+Content-Type: application/json
+
+{
+    "nome": "João Silva Jr",
+    "email": "joao.jr@email.com",
+    "senha": "novasenha123"
+}
+
+### Excluir um usuário
+DELETE {{baseUrl}}/users/1
+
+### ========== QUARTOS ==========
+
 ### Criar um quarto
 POST {{baseUrl}}/rooms
 Content-Type: application/json
@@ -55,6 +100,26 @@ Content-Type: application/json
     "capacidade": 2,
     "categoria_id": 1
 }
+
+### Listar todos os quartos
+GET {{baseUrl}}/rooms
+
+### Obter um quarto específico
+GET {{baseUrl}}/rooms/1
+
+### Atualizar um quarto
+PUT {{baseUrl}}/rooms/1
+Content-Type: application/json
+
+{
+    "numero": 101,
+    "descricao": "Quarto com vista para o mar e varanda",
+    "capacidade": 3,
+    "categoria_id": 1
+}
+
+### Excluir um quarto
+DELETE {{baseUrl}}/rooms/1
 
 ### Criar uma reserva
 POST {{baseUrl}}/reservations
