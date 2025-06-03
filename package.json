@@ -1,40 +1,24 @@
 {
-  "name": "ponderada1bryan",
+  "name": "hotel-reservation-system",
   "version": "1.0.0",
-  "description": "API REST para gerenciamento de tarefas com Node.js, Express e PostgreSQL",
+  "description": "Sistema de reserva de quartos de hotel",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "init-db": "node -e \"require('fs').readFileSync('src/database/migrations/init.sql', 'utf8').split(';').forEach(query => { if(query.trim()) console.log(query + ';'); })\" | psql -U $DB_USER -d $DB_NAME",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Luigi1412/ponderada1bryan.git"
-  },
-  "keywords": [
-    "node",
-    "express",
-    "postgresql",
-    "rest",
-    "api",
-    "mvc"
-  ],
-  "author": "",
+  "author": "Luigi Garotti",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Luigi1412/ponderada1bryan/issues"
-  },
-  "homepage": "https://github.com/Luigi1412/ponderada1bryan#readme",
   "dependencies": {
-    "body-parser": "^2.2.0",
+    "@supabase/supabase-js": "^2.39.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.18.3",
-    "pg": "^8.11.3"
+    "express": "^4.18.2",
+    "express-validator": "^7.0.1"
   },
   "devDependencies": {
+    "jest": "^29.7.0",
     "nodemon": "^3.1.0"
   }
 }

@@ -70,7 +70,7 @@ CREATE TABLE tarefas (
   id SERIAL PRIMARY KEY,
   nome VARCHAR(255) NOT NULL,
   descricao TEXT,
-  status VARCHAR(50) DEFAULT 'pendente',
+  status VARCHAR(50) DEFAULT 'Pendente' CHECK (status IN ('Pendente', 'Em Progresso', 'Concluída')),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

@@ -1,27 +1,36 @@
-# Task Manager API
+# Sistema de Reserva de Hotel
 
-Uma API REST para gerenciamento de tarefas construída com Node.js, Express e PostgreSQL, seguindo a arquitetura MVC.
+Este é um sistema de reserva de hotel desenvolvido com Node.js, Express e Supabase. O sistema permite gerenciar usuários, quartos e reservas de um hotel.
+
+## Funcionalidades
+
+- Gerenciamento de usuários
+- Gerenciamento de quartos e categorias
+- Sistema de reservas
+- Verificação de disponibilidade
+- Gerenciamento de endereços
+- Histórico de reservas por usuário
 
 ## Tecnologias Utilizadas
 
 - Node.js
 - Express.js
-- PostgreSQL
-- dotenv (para variáveis de ambiente)
-- cors (para habilitar CORS)
+- Supabase (PostgreSQL)
+- Jest
+- express-validator
 
 ## Pré-requisitos
 
-- Node.js (v14 ou superior)
-- PostgreSQL (v12 ou superior)
-- npm ou yarn
+- Node.js 18+
+- Conta no Supabase
+- NPM ou Yarn
 
-## Configuração
+## Instalação
 
 1. Clone o repositório:
 ```bash
-git clone [URL_DO_SEU_REPOSITORIO]
-cd [NOME_DO_DIRETORIO]
+git clone https://github.com/seu-usuario/hotel-reservation-system.git
+cd hotel-reservation-system
 ```
 
 2. Instale as dependências:
@@ -30,101 +39,84 @@ npm install
 ```
 
 3. Configure as variáveis de ambiente:
-Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
-```env
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=seu_usuario
-DB_PASSWORD=sua_senha
-DB_NAME=task_manager
-PORT=3000
-```
+- Copie o arquivo `.env.example` para `.env`
+- Preencha as variáveis com suas credenciais do Supabase
 
-4. Execute as migrações do banco de dados:
 ```bash
-npm run init-db
+cp .env.example .env
 ```
 
 ## Estrutura do Projeto
 
 ```
 .
-├── config/
-│   └── database.js     # Configuração do PostgreSQL
-├── controllers/
-│   └── TarefaController.js  # Controlador de tarefas
-├── routes/
-│   └── index.js       # Definição das rotas
-├── init.sql           # Script de inicialização do banco
-├── server.js          # Arquivo principal do servidor
-├── .env               # Variáveis de ambiente
-└── README.md          # Documentação
+├── src/
+│   ├── config/          # Configurações do projeto
+│   ├── controllers/     # Controladores da aplicação
+│   ├── models/         # Modelos de dados
+│   ├── routes/         # Rotas da API
+│   ├── services/       # Serviços de negócio
+│   └── server.js       # Arquivo principal
+├── tests/              # Testes automatizados
+├── .env.example        # Exemplo de variáveis de ambiente
+├── package.json        # Dependências e scripts
+└── README.md          # Este arquivo
 ```
 
-## Endpoints da API
+## Como Executar
 
-### Tarefas
+1. Em desenvolvimento:
+```bash
+npm run dev
+```
 
-- **POST /api/tarefas**
-  - Cria uma nova tarefa
-  - Body: `{ "nome": "string", "descricao": "string" }`
-
-- **GET /api/tarefas**
-  - Lista todas as tarefas
-
-- **GET /api/tarefas/:id**
-  - Obtém uma tarefa específica
-
-- **PUT /api/tarefas/:id**
-  - Atualiza uma tarefa
-  - Body: `{ "nome": "string", "descricao": "string", "status": "string" }`
-
-- **DELETE /api/tarefas/:id**
-  - Remove uma tarefa
-
-## Executando o Projeto
-
-1. Inicie o servidor:
+2. Em produção:
 ```bash
 npm start
 ```
 
-2. O servidor estará rodando em `http://localhost:3000`
-
-## Testes
-
-Para testar os endpoints, você pode usar ferramentas como Postman ou cURL:
-
+3. Executar testes:
 ```bash
-# Criar uma tarefa
-curl -X POST http://localhost:3000/api/tarefas \
-  -H "Content-Type: application/json" \
-  -d '{"nome":"Tarefa 1","descricao":"Descrição da tarefa"}'
-
-# Listar tarefas
-curl http://localhost:3000/api/tarefas
-
-# Atualizar uma tarefa
-curl -X PUT http://localhost:3000/api/tarefas/1 \
-  -H "Content-Type: application/json" \
-  -d '{"nome":"Tarefa Atualizada","descricao":"Nova descrição","status":"completo"}'
-
-# Excluir uma tarefa
-curl -X DELETE http://localhost:3000/api/tarefas/1
+npm test
 ```
 
-## Arquitetura MVC
+## API Endpoints
 
-Este projeto segue a arquitetura Model-View-Controller (MVC):
+### Usuários
+- `POST /api/users` - Criar usuário
+- `GET /api/users` - Listar usuários
+- `GET /api/users/:id` - Buscar usuário
+- `PUT /api/users/:id` - Atualizar usuário
+- `DELETE /api/users/:id` - Deletar usuário
 
-- **Model**: Representado pela estrutura do banco de dados (tabela `tarefas`)
-- **Controller**: Implementado em `TarefaController.js`, gerencia a lógica de negócios
-- **View**: A API REST serve como interface, retornando dados em formato JSON
+### Quartos
+- `POST /api/rooms` - Criar quarto
+- `GET /api/rooms` - Listar quartos
+- `GET /api/rooms/:id` - Buscar quarto
+- `PUT /api/rooms/:id` - Atualizar quarto
+- `DELETE /api/rooms/:id` - Deletar quarto
+- `GET /api/rooms/available` - Listar quartos disponíveis
 
-## Contribuição
+### Reservas
+- `POST /api/reservations` - Criar reserva
+- `GET /api/reservations` - Listar reservas
+- `GET /api/reservations/:id` - Buscar reserva
+- `PUT /api/reservations/:id` - Atualizar reserva
+- `DELETE /api/reservations/:id` - Cancelar reserva
+- `GET /api/users/:id/reservations` - Listar reservas do usuário
+
+## Arquitetura
+
+O projeto segue a arquitetura MVC (Model-View-Controller) com uma camada adicional de Services para lógica de negócios. Para mais detalhes sobre a arquitetura e o modelo de dados, consulte o arquivo [WAD.md](WAD.md).
+
+## Contribuindo
 
 1. Faça o fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
-3. Commit suas mudanças (`git commit -am 'Adiciona nova feature'`)
-4. Push para a branch (`git push origin feature/nova-feature`)
-5. Crie um Pull Request 
+2. Crie sua feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## Licença
+
+Este projeto está sob a licença ISC. 

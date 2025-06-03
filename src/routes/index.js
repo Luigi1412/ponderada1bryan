@@ -10,6 +10,7 @@ const RoomController = require('../controllers/RoomController');
 // Rotas para Tarefas
 router.post('/tarefas', TarefaController.criarTarefa);
 router.get('/tarefas', TarefaController.listarTarefas);
+router.get('/tarefas/:id', TarefaController.obterTarefa);
 router.put('/tarefas/:id', TarefaController.editarTarefa);
 router.delete('/tarefas/:id', TarefaController.excluirTarefa);
 
@@ -33,5 +34,13 @@ router.get('/rooms', RoomController.listar);
 router.get('/rooms/:id', RoomController.obter);
 router.put('/rooms/:id', RoomController.atualizar);
 router.delete('/rooms/:id', RoomController.excluir);
+
+const userRoutes = require('./userRoutes');
+const roomRoutes = require('./roomRoutes');
+const reservationRoutes = require('./reservationRoutes');
+
+router.use('/users', userRoutes);
+router.use('/rooms', roomRoutes);
+router.use('/reservations', reservationRoutes);
 
 module.exports = router; 

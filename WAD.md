@@ -1,157 +1,113 @@
-# Documentação da Aplicação Web (WAD)
+# Sistema de Reserva de Hotel - Documentação Técnica
 
-## Visão Geral da Arquitetura
+## Arquitetura MVC
 
-Este projeto implementa uma API REST para gerenciamento de tarefas seguindo a arquitetura MVC (Model-View-Controller). A aplicação é construída usando Node.js com Express.js como framework web e PostgreSQL como banco de dados.
+### Model
+A camada Model é responsável pela representação dos dados e regras de negócio. No nosso sistema, temos os seguintes modelos principais:
 
-### Arquitetura MVC
+- **User**: Gerencia dados dos usuários
+- **Room**: Gerencia dados dos quartos
+- **Reservation**: Gerencia dados das reservas
+- **RoomCategory**: Gerencia categorias de quartos
 
-```
-[Cliente HTTP] <-> [Express (Router)] <-> [Controller] <-> [Model (PostgreSQL)]
-```
+Cada modelo interage diretamente com o Supabase para operações CRUD.
 
-#### Componentes
+### View
+A camada View é representada pelos endpoints da API REST, que retornam dados em formato JSON. Futuramente, pode ser expandida para incluir uma interface web.
 
-1. **Model**
-   - Implementado através da estrutura do banco de dados PostgreSQL
-   - Tabela `tarefas` com campos:
-     - `id` (SERIAL PRIMARY KEY)
-     - `nome` (VARCHAR)
-     - `descricao` (TEXT)
-     - `status` (VARCHAR)
-     - `created_at` (TIMESTAMP)
-     - `updated_at` (TIMESTAMP)
+### Controller
+Os controllers processam as requisições, aplicam regras de negócio através dos services e retornam respostas apropriadas:
 
-2. **View**
-   - Interface REST API
-   - Retorna dados em formato JSON
-   - Endpoints documentados no README.md
+- **UserController**: Gerencia operações relacionadas a usuários
+- **RoomController**: Gerencia operações relacionadas a quartos
+- **ReservationController**: Gerencia operações relacionadas a reservas
 
-3. **Controller**
-   - `TarefaController.js`
-   - Implementa a lógica de negócios
-   - Gerencia operações CRUD
-   - Trata erros e validações
-
-### Fluxo de Dados
-
-1. O cliente faz uma requisição HTTP para um endpoint
-2. O Router do Express direciona a requisição para o Controller apropriado
-3. O Controller processa a requisição e interage com o banco de dados
-4. O banco de dados retorna os dados solicitados
-5. O Controller formata a resposta
-6. A resposta é enviada ao cliente em formato JSON
-
-## Detalhes Técnicos
-
-### Banco de Dados
+## Diagrama do Banco de Dados
 
 ```sql
-CREATE TABLE tarefas (
+CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    nome VARCHAR(255) NOT NULL,
-    descricao TEXT,
-    status VARCHAR(50) DEFAULT 'pendente',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE room_categories (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    base_price DECIMAL(10,2) NOT NULL
+);
+
+CREATE TABLE rooms (
+    id SERIAL PRIMARY KEY,
+    number TEXT NOT NULL UNIQUE,
+    category_id INTEGER REFERENCES room_categories(id),
+    status TEXT DEFAULT 'available',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE reservations (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    room_id INTEGER REFERENCES rooms(id),
+    check_in DATE NOT NULL,
+    check_out DATE NOT NULL,
+    status TEXT DEFAULT 'pending',
+    total_price DECIMAL(10,2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE addresses (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    street TEXT NOT NULL,
+    city TEXT NOT NULL,
+    state TEXT NOT NULL,
+    postal_code TEXT NOT NULL,
+    country TEXT NOT NULL DEFAULT 'Brasil'
 );
 ```
 
-### Endpoints da API
+## Fluxo de Dados
 
-#### POST /api/tarefas
-- **Função**: Criar nova tarefa
-- **Controller**: `criarTarefa`
-- **Payload**:
-  ```json
-  {
-    "nome": "string",
-    "descricao": "string"
-  }
-  ```
+1. O cliente faz uma requisição HTTP para um endpoint específico
+2. O Router direciona a requisição para o Controller apropriado
+3. O Controller utiliza os Services necessários para processar a requisição
+4. Os Services utilizam os Models para interagir com o banco de dados
+5. Os dados são retornados através da mesma cadeia até o cliente
 
-#### GET /api/tarefas
-- **Função**: Listar todas as tarefas
-- **Controller**: `listarTarefas`
-- **Resposta**:
-  ```json
-  [
-    {
-      "id": "number",
-      "nome": "string",
-      "descricao": "string",
-      "status": "string",
-      "created_at": "timestamp",
-      "updated_at": "timestamp"
-    }
-  ]
-  ```
+## Endpoints da API
 
-#### GET /api/tarefas/:id
-- **Função**: Obter tarefa específica
-- **Controller**: `obterTarefa`
-- **Parâmetros**: `id` (número)
+### Usuários
+- `POST /api/users` - Criar novo usuário
+- `GET /api/users` - Listar usuários
+- `GET /api/users/:id` - Buscar usuário por ID
+- `PUT /api/users/:id` - Atualizar usuário
+- `DELETE /api/users/:id` - Deletar usuário
 
-#### PUT /api/tarefas/:id
-- **Função**: Atualizar tarefa
-- **Controller**: `editarTarefa`
-- **Payload**:
-  ```json
-  {
-    "nome": "string",
-    "descricao": "string",
-    "status": "string"
-  }
-  ```
+### Quartos
+- `POST /api/rooms` - Criar novo quarto
+- `GET /api/rooms` - Listar quartos
+- `GET /api/rooms/:id` - Buscar quarto por ID
+- `PUT /api/rooms/:id` - Atualizar quarto
+- `DELETE /api/rooms/:id` - Deletar quarto
+- `GET /api/rooms/available` - Listar quartos disponíveis
 
-#### DELETE /api/tarefas/:id
-- **Função**: Excluir tarefa
-- **Controller**: `excluirTarefa`
-- **Parâmetros**: `id` (número)
+### Reservas
+- `POST /api/reservations` - Criar nova reserva
+- `GET /api/reservations` - Listar reservas
+- `GET /api/reservations/:id` - Buscar reserva por ID
+- `PUT /api/reservations/:id` - Atualizar reserva
+- `DELETE /api/reservations/:id` - Cancelar reserva
+- `GET /api/users/:id/reservations` - Listar reservas de um usuário
 
-### Tratamento de Erros
+## Stack Tecnológica
 
-- Erros 400: Requisições inválidas
-- Erros 404: Recurso não encontrado
-- Erros 500: Erro interno do servidor
-
-### Segurança
-
-- Validação de entrada em todas as rotas
-- Sanitização de dados antes de interagir com o banco
-- Uso de variáveis de ambiente para dados sensíveis
-- Implementação de CORS
-
-### Performance
-
-- Conexão com banco de dados via pool
-- Queries otimizadas com índices apropriados
-- Paginação implementada para grandes conjuntos de dados
-
-## Dependências
-
-- `express`: Framework web
-- `pg`: Cliente PostgreSQL
-- `dotenv`: Gerenciamento de variáveis de ambiente
-- `cors`: Middleware para CORS
-
-## Monitoramento e Logs
-
-- Logs de erro detalhados
-- Endpoint de health check (/health)
-- Monitoramento de conexões do banco de dados
-
-## Considerações de Deployment
-
-- Necessário PostgreSQL >= 12
-- Node.js >= 14
-- Variáveis de ambiente configuradas
-- Porta 3000 disponível (ou configurável via PORT)
-
-## Próximos Passos
-
-1. Implementar autenticação e autorização
-2. Adicionar testes automatizados
-3. Implementar cache para melhorar performance
-4. Adicionar documentação OpenAPI/Swagger
-5. Implementar rate limiting 
+- **Backend**: Node.js com Express
+- **Banco de Dados**: PostgreSQL via Supabase
+- **ORM**: Supabase Client
+- **Autenticação**: Supabase Auth
+- **Validação**: express-validator
+- **Testes**: Jest 
