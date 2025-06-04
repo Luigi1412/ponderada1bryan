@@ -1,6 +1,6 @@
 <% layout('layout') %>
 <h1><%= avaliacao ? 'Editar Avaliação' : 'Nova Avaliação' %></h1>
-<form action="<%= avaliacao ? '/avaliacoes/' + avaliacao.id + '?_method=PUT' : '/avaliacoes' %>" method="POST">
+<form id="avaliacao-form">
   <label>Usuário: <input type="number" name="user_id" value="<%= avaliacao ? avaliacao.user_id : '' %>" required></label><br>
   <label>Quarto: <input type="number" name="room_id" value="<%= avaliacao ? avaliacao.room_id : '' %>" required></label><br>
   <label>Nota: <input type="number" name="nota" value="<%= avaliacao ? avaliacao.nota : '' %>" required></label><br>
@@ -8,3 +8,23 @@
   <label>Data: <input type="date" name="data_avaliacao" value="<%= avaliacao ? avaliacao.data_avaliacao : '' %>"></label><br>
   <button type="submit"><%= avaliacao ? 'Atualizar' : 'Criar' %></button>
 </form>
+
+<script>
+document.getElementById('avaliacao-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const data = {
+    user_id: this.user_id.value,
+    room_id: this.room_id.value,
+    nota: this.nota.value,
+    comentario: this.comentario.value,
+    data_avaliacao: this.data_avaliacao.value
+  };
+  const url = "<%= avaliacao ? '/api/avaliacoes/' + avaliacao.id : '/api/avaliacoes' %>";
+  const method = "<%= avaliacao ? 'PUT' : 'POST' %>";
+  fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  }).then(() => window.location.href = '/avaliacoes');
+});
+</script>
