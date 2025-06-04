@@ -1,0 +1,9 @@
+<% layout('layout') %>
+<h1><%= comentario ? 'Editar Comentário' : 'Novo Comentário' %></h1>
+<form action="<%= comentario ? '/comentarios/' + comentario.id + '?_method=PUT' : '/comentarios' %>" method="POST">
+  <label>Tarefa: <input type="number" name="tarefa_id" value="<%= comentario ? comentario.tarefa_id : '' %>" required></label><br>
+  <label>Usuário: <input type="number" name="user_id" value="<%= comentario ? comentario.user_id : '' %>" required></label><br>
+  <label>Comentário: <textarea name="comentario"><%= comentario ? comentario.comentario : '' %></textarea></label><br>
+  <label>Data: <input type="date" name="data_comentario" value="<%= comentario ? comentario.data_comentario : '' %>"></label><br>
+  <button type="submit"><%= comentario ? 'Atualizar' : 'Criar' %></button>
+</form>

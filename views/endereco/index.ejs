@@ -1,0 +1,36 @@
+<% layout('layout') %>
+<h1>Endereços</h1>
+<a href="/enderecos/new">Novo Endereço</a>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Usuário</th>
+      <th>Rua</th>
+      <th>Número</th>
+      <th>Cidade</th>
+      <th>Estado</th>
+      <th>CEP</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% enderecos.forEach(endereco => { %>
+      <tr>
+        <td><%= endereco.id %></td>
+        <td><%= endereco.user_id %></td>
+        <td><%= endereco.rua %></td>
+        <td><%= endereco.numero %></td>
+        <td><%= endereco.cidade %></td>
+        <td><%= endereco.estado %></td>
+        <td><%= endereco.cep %></td>
+        <td>
+          <a href="/enderecos/<%= endereco.id %>/edit">Editar</a>
+          <form action="/enderecos/<%= endereco.id %>?_method=DELETE" method="POST" style="display:inline;">
+            <button type="submit">Excluir</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>

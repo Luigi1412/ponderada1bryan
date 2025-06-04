@@ -1,0 +1,32 @@
+<% layout('layout') %>
+<h1>Comentários</h1>
+<a href="/comentarios/new">Novo Comentário</a>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Tarefa</th>
+      <th>Usuário</th>
+      <th>Comentário</th>
+      <th>Data</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% comentarios.forEach(comentario => { %>
+      <tr>
+        <td><%= comentario.id %></td>
+        <td><%= comentario.tarefa_id %></td>
+        <td><%= comentario.user_id %></td>
+        <td><%= comentario.comentario %></td>
+        <td><%= comentario.data_comentario %></td>
+        <td>
+          <a href="/comentarios/<%= comentario.id %>/edit">Editar</a>
+          <form action="/comentarios/<%= comentario.id %>?_method=DELETE" method="POST" style="display:inline;">
+            <button type="submit">Excluir</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>

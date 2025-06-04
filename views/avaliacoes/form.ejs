@@ -1,0 +1,10 @@
+<% layout('layout') %>
+<h1><%= avaliacao ? 'Editar Avaliação' : 'Nova Avaliação' %></h1>
+<form action="<%= avaliacao ? '/avaliacoes/' + avaliacao.id + '?_method=PUT' : '/avaliacoes' %>" method="POST">
+  <label>Usuário: <input type="number" name="user_id" value="<%= avaliacao ? avaliacao.user_id : '' %>" required></label><br>
+  <label>Quarto: <input type="number" name="room_id" value="<%= avaliacao ? avaliacao.room_id : '' %>" required></label><br>
+  <label>Nota: <input type="number" name="nota" value="<%= avaliacao ? avaliacao.nota : '' %>" required></label><br>
+  <label>Comentário: <textarea name="comentario"><%= avaliacao ? avaliacao.comentario : '' %></textarea></label><br>
+  <label>Data: <input type="date" name="data_avaliacao" value="<%= avaliacao ? avaliacao.data_avaliacao : '' %>"></label><br>
+  <button type="submit"><%= avaliacao ? 'Atualizar' : 'Criar' %></button>
+</form>

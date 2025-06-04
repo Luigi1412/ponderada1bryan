@@ -1,0 +1,9 @@
+<% layout('layout') %>
+<h1><%= room ? 'Editar Quarto' : 'Novo Quarto' %></h1>
+<form action="<%= room ? '/rooms/' + room.id + '?_method=PUT' : '/rooms' %>" method="POST">
+  <label>Número: <input type="number" name="numero" value="<%= room ? room.numero : '' %>" required></label><br>
+  <label>Descrição: <input type="text" name="descricao" value="<%= room ? room.descricao : '' %>"></label><br>
+  <label>Capacidade: <input type="number" name="capacidade" value="<%= room ? room.capacidade : '' %>" required></label><br>
+  <label>Categoria: <input type="number" name="categoria_id" value="<%= room ? room.categoria_id : '' %>" required></label><br>
+  <button type="submit"><%= room ? 'Atualizar' : 'Criar' %></button>
+</form>

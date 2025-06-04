@@ -1,0 +1,28 @@
+<% layout('layout') %>
+<h1>Usuários</h1>
+<a href="/users/new">Novo Usuário</a>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nome</th>
+      <th>Email</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% users.forEach(user => { %>
+      <tr>
+        <td><%= user.id %></td>
+        <td><%= user.nome %></td>
+        <td><%= user.email %></td>
+        <td>
+          <a href="/users/<%= user.id %>/edit">Editar</a>
+          <form action="/users/<%= user.id %>?_method=DELETE" method="POST" style="display:inline;">
+            <button type="submit">Excluir</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>

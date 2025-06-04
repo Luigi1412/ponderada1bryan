@@ -1,0 +1,28 @@
+<% layout('layout') %>
+<h1>Categorias de Quartos</h1>
+<a href="/categorias-quartos/new">Nova Categoria</a>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nome</th>
+      <th>Descrição</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% categorias.forEach(categoria => { %>
+      <tr>
+        <td><%= categoria.id %></td>
+        <td><%= categoria.nome %></td>
+        <td><%= categoria.descricao %></td>
+        <td>
+          <a href="/categorias-quartos/<%= categoria.id %>/edit">Editar</a>
+          <form action="/categorias-quartos/<%= categoria.id %>?_method=DELETE" method="POST" style="display:inline;">
+            <button type="submit">Excluir</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>

@@ -1,0 +1,34 @@
+<% layout('layout') %>
+<h1>Avaliações</h1>
+<a href="/avaliacoes/new">Nova Avaliação</a>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Usuário</th>
+      <th>Quarto</th>
+      <th>Nota</th>
+      <th>Comentário</th>
+      <th>Data</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% avaliacoes.forEach(avaliacao => { %>
+      <tr>
+        <td><%= avaliacao.id %></td>
+        <td><%= avaliacao.user_id %></td>
+        <td><%= avaliacao.room_id %></td>
+        <td><%= avaliacao.nota %></td>
+        <td><%= avaliacao.comentario %></td>
+        <td><%= avaliacao.data_avaliacao %></td>
+        <td>
+          <a href="/avaliacoes/<%= avaliacao.id %>/edit">Editar</a>
+          <form action="/avaliacoes/<%= avaliacao.id %>?_method=DELETE" method="POST" style="display:inline;">
+            <button type="submit">Excluir</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>

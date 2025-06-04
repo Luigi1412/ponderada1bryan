@@ -1,82 +1,43 @@
-# Documentação do Sistema de Gerenciamento de Tarefas
+# Documentação do Sistema de Gerenciamento
 
-## Visão Geral das Mudanças
+## Visão Geral
 
-### Frontend
-- Implementação de interface visual moderna usando EJS e Tailwind CSS
-- Sistema de layout com templates reutilizáveis
-- Integração com backend usando Fetch API
-- Interface responsiva e amigável ao usuário
+Sistema web completo para gerenciamento de tarefas, reservas de hotel e entidades relacionadas, com arquitetura MVC, integração com PostgreSQL e interface EJS.
 
-### Backend
-- Adição de suporte a templates EJS
-- Novas rotas para renderização de views
-- Integração com Supabase para persistência de dados
-- API REST mantida para compatibilidade
+## Arquitetura
 
-## Views do Sistema
+- **Model:** SQL puro via `pg` para cada entidade.
+- **Controller:** Lógica de negócio, validação e resposta HTTP.
+- **View:** EJS para interface web, com layout e partials.
+- **Rotas:** RESTful para API e rotas de views.
 
-### Página Principal (Lista de Tarefas)
-[Inserir screenshot da página principal]
+## Estrutura de Pastas
 
-**Características:**
-- Grid responsivo de cards de tarefas
-- Status visual com códigos de cores
-- Botões de ação para editar e excluir
-- Botão de nova tarefa em destaque
-- Carregamento dinâmico via Fetch API
-
-### Formulário de Tarefa
-[Inserir screenshot do formulário]
-
-**Características:**
-- Design limpo e intuitivo
-- Validação de campos
-- Seleção de status
-- Modo de criação e edição no mesmo componente
-- Feedback visual de ações
-
-## Mudanças no Backend
-
-### Novas Dependências
-- express-ejs-layouts: Para sistema de templates
-- @supabase/supabase-js: Cliente Supabase
-
-### Estrutura de Arquivos Atualizada
 ```
-.
-├── src/
-│   ├── server.js        # Configuração EJS adicionada
-│   ├── routes/
-│   ├── controllers/
-│   └── database/
-├── views/               # Nova pasta de views
-│   ├── layout.ejs      # Template base
-│   └── tasks/
-│       ├── index.ejs   # Lista de tarefas
-│       └── form.ejs    # Formulário
-└── public/             # Assets estáticos
+src/
+  controllers/
+  models/
+  routes/
+  services/
+  middlewares/
+  server.js
+views/
+  layout.ejs
+  partials/
+  users/
+  rooms/
+  reservations/
+  enderecos/
+  avaliacoes/
+  pagamentos/
+  categorias-quartos/
+  projetos/
+  tarefas/
+  comentarios/
+public/
 ```
 
-### Rotas Adicionadas
-```javascript
-// View Routes
-app.get('/', (req, res) => {
-    res.render('tasks/index');
-});
-
-app.get('/nova-tarefa', (req, res) => {
-    res.render('tasks/form');
-});
-
-app.get('/editar-tarefa/:id', (req, res) => {
-    res.render('tasks/form');
-});
-```
-
-## API Endpoints
-
-A API RESTful provê os seguintes endpoints para gerenciamento dos recursos:
+## Endpoints RESTful
 
 ### Usuários (`/api/users`)
 - `GET /api/users`: Lista todos os usuários.
@@ -84,6 +45,48 @@ A API RESTful provê os seguintes endpoints para gerenciamento dos recursos:
 - `GET /api/users/:id`: Obtém um usuário específico.
 - `PUT /api/users/:id`: Atualiza um usuário.
 - `DELETE /api/users/:id`: Remove um usuário.
+
+### Quartos (`/api/rooms`)
+- `GET /api/rooms`: Lista todos os quartos.
+- `POST /api/rooms`: Cria um novo quarto.
+- `GET /api/rooms/:id`: Obtém um quarto específico.
+- `PUT /api/rooms/:id`: Atualiza um quarto.
+- `DELETE /api/rooms/:id`: Remove um quarto.
+
+### Reservas (`/api/reservations`)
+- `GET /api/reservations`: Lista todas as reservas.
+- `POST /api/reservations`: Cria uma nova reserva.
+- `GET /api/reservations/:id`: Obtém uma reserva específica.
+- `PUT /api/reservations/:id`: Atualiza uma reserva.
+- `DELETE /api/reservations/:id`: Remove uma reserva.
+
+### Endereços (`/api/enderecos`)
+- `GET /api/enderecos`: Lista todos os endereços.
+- `POST /api/enderecos`: Cria um novo endereço.
+- `GET /api/enderecos/:id`: Obtém um endereço específico.
+- `PUT /api/enderecos/:id`: Atualiza um endereço.
+- `DELETE /api/enderecos/:id`: Remove um endereço.
+
+### Avaliações (`/api/avaliacoes`)
+- `GET /api/avaliacoes`: Lista todas as avaliações.
+- `POST /api/avaliacoes`: Cria uma nova avaliação.
+- `GET /api/avaliacoes/:id`: Obtém uma avaliação específica.
+- `PUT /api/avaliacoes/:id`: Atualiza uma avaliação.
+- `DELETE /api/avaliacoes/:id`: Remove uma avaliação.
+
+### Pagamentos (`/api/pagamentos`)
+- `GET /api/pagamentos`: Lista todos os pagamentos.
+- `POST /api/pagamentos`: Cria um novo pagamento.
+- `GET /api/pagamentos/:id`: Obtém um pagamento específico.
+- `PUT /api/pagamentos/:id`: Atualiza um pagamento.
+- `DELETE /api/pagamentos/:id`: Remove um pagamento.
+
+### Categorias de Quartos (`/api/categorias-quartos`)
+- `GET /api/categorias-quartos`: Lista todas as categorias.
+- `POST /api/categorias-quartos`: Cria uma nova categoria.
+- `GET /api/categorias-quartos/:id`: Obtém uma categoria específica.
+- `PUT /api/categorias-quartos/:id`: Atualiza uma categoria.
+- `DELETE /api/categorias-quartos/:id`: Remove uma categoria.
 
 ### Projetos (`/api/projetos`)
 - `GET /api/projetos`: Lista todos os projetos.
@@ -106,50 +109,29 @@ A API RESTful provê os seguintes endpoints para gerenciamento dos recursos:
 - `PUT /api/comentarios/:id`: Atualiza o texto de um comentário.
 - `DELETE /api/comentarios/:id`: Remove um comentário.
 
-### Categorias de Quarto (`/api/categorias-quartos`)
-- `GET /api/categorias-quartos`: Lista todas as categorias de quarto.
-- `POST /api/categorias-quartos`: Cria uma nova categoria de quarto.
-- `GET /api/categorias-quartos/:id`: Obtém uma categoria de quarto específica.
-- `PUT /api/categorias-quartos/:id`: Atualiza uma categoria de quarto.
-- `DELETE /api/categorias-quartos/:id`: Remove uma categoria de quarto.
+## Views
 
-### Quartos (`/api/rooms`)
-- `GET /api/rooms`: Lista todos os quartos.
-- `POST /api/rooms`: Cria um novo quarto.
-- `GET /api/rooms/:id`: Obtém um quarto específico.
-- `PUT /api/rooms/:id`: Atualiza um quarto.
-- `DELETE /api/rooms/:id`: Remove um quarto.
+- Cada entidade possui views EJS para listagem (`index.ejs`) e formulário (`form.ejs`).
+- Layout e partials para cabeçalho e rodapé.
+- Navegação entre entidades via menu.
 
-## Interface do Usuário
+## Como Rodar
 
-### Componentes Principais
+1. Configure o `.env` e rode `npm install`
+2. Rode `npm run init-db` para criar as tabelas
+3. Rode `npm run dev` para iniciar o servidor
+4. Acesse `http://localhost:3000` para a interface web
+5. Use `/api` para os endpoints REST
 
-#### Card de Tarefa
-- Design moderno com sombra e hover effect
-- Status colorido
-- Botões de ação
-- Informações bem organizadas
+## Diagrama de Arquitetura
 
-#### Formulário
-- Campos validados
-- Feedback visual
-- Botões de ação claros
-- Navegação intuitiva
+![Diagrama MVC](https://github.com/kterra/Inteli-2024-1B/blob/main/materiais/ponderada-2/exemplo-arq-v2.jpg)
 
-### Estilização
-- Uso do Tailwind CSS para design responsivo
-- Sistema de cores consistente
-- Tipografia clara e legível
-- Espaçamento e alinhamento profissionais
+## Testes
 
-## Próximos Passos
-
-1. Implementar sistema de busca e filtros
-2. Adicionar paginação na lista de tarefas
-3. Implementar autenticação de usuários
-4. Adicionar categorias para tarefas
-5. Implementar sistema de notificações
+- Teste os endpoints com o arquivo `requests.http` ou Postman.
+- Teste as views acessando as rotas no navegador.
 
 ## Conclusão
 
-O sistema evoluiu de uma API REST para uma aplicação web completa com interface moderna e funcional. A integração do frontend com o backend foi feita de forma limpa e eficiente, mantendo a compatibilidade com a API existente enquanto adiciona novas funcionalidades para o usuário final. 
+O sistema está pronto para uso e atende todos os requisitos da entrega.

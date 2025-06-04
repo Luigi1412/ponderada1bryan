@@ -1,15 +1,14 @@
-# Sistema de Gerenciamento de Tarefas
+# Sistema de Gerenciamento de Tarefas e Reservas
 
-Este é um sistema completo de gerenciamento de tarefas com frontend em EJS e backend em Node.js, utilizando Express e PostgreSQL.
+Este é um sistema completo de gerenciamento de tarefas, reservas de hotel e entidades relacionadas, com frontend em EJS e backend em Node.js, utilizando Express e PostgreSQL.
 
 ## Funcionalidades
 
-- Listagem de tarefas com interface moderna e responsiva
-- Criação de novas tarefas
-- Edição de tarefas existentes
-- Exclusão de tarefas
-- Status de tarefas (Pendente, Em Progresso, Concluída)
-- Interface amigável e intuitiva
+- CRUD completo para Usuários, Quartos, Reservas, Endereços, Avaliações, Pagamentos, Categorias de Quartos, Projetos, Tarefas e Comentários
+- Interface web moderna com EJS e Tailwind CSS
+- API RESTful para integração com outros sistemas
+- Validação de dados e tratamento de erros
+- Estrutura MVC clara
 
 ## Tecnologias Utilizadas
 
@@ -19,6 +18,8 @@ Este é um sistema completo de gerenciamento de tarefas com frontend em EJS e ba
 - PostgreSQL
 - Tailwind CSS
 - Fetch API
+- Supabase (opcional)
+- express-ejs-layouts
 
 ## Pré-requisitos
 
@@ -66,6 +67,42 @@ npm run dev
 http://localhost:3000
 ```
 
+## Estrutura de Pastas
+
+```
+src/
+  controllers/
+  models/
+  routes/
+  services/
+  middlewares/
+  server.js
+views/
+  layout.ejs
+  partials/
+  users/
+  rooms/
+  reservations/
+  enderecos/
+  avaliacoes/
+  pagamentos/
+  categorias-quartos/
+  projetos/
+  tarefas/
+  comentarios/
+public/
+  (assets estáticos)
+```
+
+## Endpoints Principais
+
+Veja o arquivo [WAD.md](./WAD.md) para a lista completa de endpoints e exemplos de uso.
+
+## Testes
+
+- Teste os endpoints usando o arquivo `requests.http` ou ferramentas como Postman.
+- Teste as views acessando as rotas no navegador.
+
 ## Contribuição
 
 1. Faça o fork do projeto
@@ -73,7 +110,3 @@ http://localhost:3000
 3. Commit suas mudanças (`git commit -am 'Adiciona nova feature'`)
 4. Push para a branch (`git push origin feature/nova-feature`)
 5. Crie um Pull Request 
-
-## Licença
-
-Este projeto está sob a licença ISC. 

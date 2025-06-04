@@ -1,0 +1,11 @@
+<% layout('layout') %>
+<h1><%= endereco ? 'Editar Endereço' : 'Novo Endereço' %></h1>
+<form action="<%= endereco ? '/enderecos/' + endereco.id + '?_method=PUT' : '/enderecos' %>" method="POST">
+  <label>Usuário: <input type="number" name="user_id" value="<%= endereco ? endereco.user_id : '' %>" required></label><br>
+  <label>Rua: <input type="text" name="rua" value="<%= endereco ? endereco.rua : '' %>" required></label><br>
+  <label>Número: <input type="text" name="numero" value="<%= endereco ? endereco.numero : '' %>" required></label><br>
+  <label>Cidade: <input type="text" name="cidade" value="<%= endereco ? endereco.cidade : '' %>" required></label><br>
+  <label>Estado: <input type="text" name="estado" value="<%= endereco ? endereco.estado : '' %>" required></label><br>
+  <label>CEP: <input type="text" name="cep" value="<%= endereco ? endereco.cep : '' %>" required></label><br>
+  <button type="submit"><%= endereco ? 'Atualizar' : 'Criar' %></button>
+</form>

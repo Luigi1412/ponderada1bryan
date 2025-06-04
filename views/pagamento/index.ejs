@@ -1,0 +1,34 @@
+<% layout('layout') %>
+<h1>Pagamentos</h1>
+<a href="/pagamentos/new">Novo Pagamento</a>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Reserva</th>
+      <th>Valor</th>
+      <th>Data</th>
+      <th>Método</th>
+      <th>Status</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% pagamentos.forEach(pagamento => { %>
+      <tr>
+        <td><%= pagamento.id %></td>
+        <td><%= pagamento.reserva_id %></td>
+        <td><%= pagamento.valor %></td>
+        <td><%= pagamento.data_pagamento %></td>
+        <td><%= pagamento.metodo %></td>
+        <td><%= pagamento.status %></td>
+        <td>
+          <a href="/pagamentos/<%= pagamento.id %>/edit">Editar</a>
+          <form action="/pagamentos/<%= pagamento.id %>?_method=DELETE" method="POST" style="display:inline;">
+            <button type="submit">Excluir</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>

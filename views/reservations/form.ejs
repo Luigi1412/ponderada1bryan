@@ -1,0 +1,11 @@
+<% layout('layout') %>
+<h1><%= reservation ? 'Editar Reserva' : 'Nova Reserva' %></h1>
+<form action="<%= reservation ? '/reservations/' + reservation.id + '?_method=PUT' : '/reservations' %>" method="POST">
+  <label>Usuário: <input type="number" name="user_id" value="<%= reservation ? reservation.user_id : '' %>" required></label><br>
+  <label>Quarto: <input type="number" name="room_id" value="<%= reservation ? reservation.room_id : '' %>" required></label><br>
+  <label>Check-in: <input type="date" name="data_checkin" value="<%= reservation ? reservation.data_checkin : '' %>" required></label><br>
+  <label>Check-out: <input type="date" name="data_checkout" value="<%= reservation ? reservation.data_checkout : '' %>" required></label><br>
+  <label>Status: <input type="text" name="status" value="<%= reservation ? reservation.status : '' %>"></label><br>
+  <label>Preço: <input type="number" step="0.01" name="preco_reserva" value="<%= reservation ? reservation.preco_reserva : '' %>"></label><br>
+  <button type="submit"><%= reservation ? 'Atualizar' : 'Criar' %></button>
+</form>

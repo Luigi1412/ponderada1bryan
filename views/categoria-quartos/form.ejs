@@ -1,0 +1,7 @@
+<% layout('layout') %>
+<h1><%= categoria ? 'Editar Categoria' : 'Nova Categoria' %></h1>
+<form action="<%= categoria ? '/categorias-quartos/' + categoria.id + '?_method=PUT' : '/categorias-quartos' %>" method="POST">
+  <label>Nome: <input type="text" name="nome" value="<%= categoria ? categoria.nome : '' %>" required></label><br>
+  <label>Descrição: <input type="text" name="descricao" value="<%= categoria ? categoria.descricao : '' %>"></label><br>
+  <button type="submit"><%= categoria ? 'Atualizar' : 'Criar' %></button>
+</form>

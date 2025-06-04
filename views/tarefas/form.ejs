@@ -1,0 +1,13 @@
+<% layout('layout') %>
+<h1><%= tarefa ? 'Editar Tarefa' : 'Nova Tarefa' %></h1>
+<form action="<%= tarefa ? '/tarefas/' + tarefa.id + '?_method=PUT' : '/tarefas' %>" method="POST">
+  <label>Título: <input type="text" name="titulo" value="<%= tarefa ? tarefa.titulo : '' %>" required></label><br>
+  <label>Status: 
+    <select name="status">
+      <option value="Pendente" <%= tarefa && tarefa.status === 'Pendente' ? 'selected' : '' %>>Pendente</option>
+      <option value="Em Progresso" <%= tarefa && tarefa.status === 'Em Progresso' ? 'selected' : '' %>>Em Progresso</option>
+      <option value="Concluída" <%= tarefa && tarefa.status === 'Concluída' ? 'selected' : '' %>>Concluída</option>
+    </select>
+  </label><br>
+  <button type="submit"><%= tarefa ? 'Atualizar' : 'Criar' %></button>
+</form>

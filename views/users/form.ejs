@@ -1,0 +1,8 @@
+<% layout('layout') %>
+<h1><%= user ? 'Editar Usuário' : 'Novo Usuário' %></h1>
+<form action="<%= user ? '/users/' + user.id + '?_method=PUT' : '/users' %>" method="POST">
+  <label>Nome: <input type="text" name="nome" value="<%= user ? user.nome : '' %>" required></label><br>
+  <label>Email: <input type="email" name="email" value="<%= user ? user.email : '' %>" required></label><br>
+  <label>Senha: <input type="password" name="senha" value="" <%= user ? '' : 'required' %>></label><br>
+  <button type="submit"><%= user ? 'Atualizar' : 'Criar' %></button>
+</form>

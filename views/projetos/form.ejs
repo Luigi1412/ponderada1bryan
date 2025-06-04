@@ -1,0 +1,7 @@
+<% layout('layout') %>
+<h1><%= projeto ? 'Editar Projeto' : 'Novo Projeto' %></h1>
+<form action="<%= projeto ? '/projetos/' + projeto.id + '?_method=PUT' : '/projetos' %>" method="POST">
+  <label>Nome: <input type="text" name="nome" value="<%= projeto ? projeto.nome : '' %>" required></label><br>
+  <label>Descrição: <input type="text" name="descricao" value="<%= projeto ? projeto.descricao : '' %>"></label><br>
+  <button type="submit"><%= projeto ? 'Atualizar' : 'Criar' %></button>
+</form>

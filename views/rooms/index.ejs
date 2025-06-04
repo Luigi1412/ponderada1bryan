@@ -1,0 +1,32 @@
+<% layout('layout') %>
+<h1>Quartos</h1>
+<a href="/rooms/new">Novo Quarto</a>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Número</th>
+      <th>Descrição</th>
+      <th>Capacidade</th>
+      <th>Categoria</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% rooms.forEach(room => { %>
+      <tr>
+        <td><%= room.id %></td>
+        <td><%= room.numero %></td>
+        <td><%= room.descricao %></td>
+        <td><%= room.capacidade %></td>
+        <td><%= room.categoria_id %></td>
+        <td>
+          <a href="/rooms/<%= room.id %>/edit">Editar</a>
+          <form action="/rooms/<%= room.id %>?_method=DELETE" method="POST" style="display:inline;">
+            <button type="submit">Excluir</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
