@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const UserController = require('../controllers/UserController');
-const { userValidators } = require('../middlewares/validators');
 
-router.post('/', userValidators.create, UserController.create);
-router.get('/', UserController.getAll);
-router.get('/:id', UserController.getById);
-router.put('/:id', userValidators.update, UserController.update);
-router.delete('/:id', UserController.delete);
+// Rotas para Usuários
+router.post('/', UserController.criar);
+router.get('/', UserController.listar);
+router.get('/:id', UserController.obter);
+router.put('/:id', UserController.atualizar);
+router.delete('/:id', UserController.excluir);
 
 module.exports = router; 

@@ -1,113 +1,155 @@
-# Sistema de Reserva de Hotel - Documentação Técnica
+# Documentação do Sistema de Gerenciamento de Tarefas
 
-## Arquitetura MVC
+## Visão Geral das Mudanças
 
-### Model
-A camada Model é responsável pela representação dos dados e regras de negócio. No nosso sistema, temos os seguintes modelos principais:
+### Frontend
+- Implementação de interface visual moderna usando EJS e Tailwind CSS
+- Sistema de layout com templates reutilizáveis
+- Integração com backend usando Fetch API
+- Interface responsiva e amigável ao usuário
 
-- **User**: Gerencia dados dos usuários
-- **Room**: Gerencia dados dos quartos
-- **Reservation**: Gerencia dados das reservas
-- **RoomCategory**: Gerencia categorias de quartos
+### Backend
+- Adição de suporte a templates EJS
+- Novas rotas para renderização de views
+- Integração com Supabase para persistência de dados
+- API REST mantida para compatibilidade
 
-Cada modelo interage diretamente com o Supabase para operações CRUD.
+## Views do Sistema
 
-### View
-A camada View é representada pelos endpoints da API REST, que retornam dados em formato JSON. Futuramente, pode ser expandida para incluir uma interface web.
+### Página Principal (Lista de Tarefas)
+[Inserir screenshot da página principal]
 
-### Controller
-Os controllers processam as requisições, aplicam regras de negócio através dos services e retornam respostas apropriadas:
+**Características:**
+- Grid responsivo de cards de tarefas
+- Status visual com códigos de cores
+- Botões de ação para editar e excluir
+- Botão de nova tarefa em destaque
+- Carregamento dinâmico via Fetch API
 
-- **UserController**: Gerencia operações relacionadas a usuários
-- **RoomController**: Gerencia operações relacionadas a quartos
-- **ReservationController**: Gerencia operações relacionadas a reservas
+### Formulário de Tarefa
+[Inserir screenshot do formulário]
 
-## Diagrama do Banco de Dados
+**Características:**
+- Design limpo e intuitivo
+- Validação de campos
+- Seleção de status
+- Modo de criação e edição no mesmo componente
+- Feedback visual de ações
 
-```sql
-CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
-    email TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+## Mudanças no Backend
 
-CREATE TABLE room_categories (
-    id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
-    description TEXT,
-    base_price DECIMAL(10,2) NOT NULL
-);
+### Novas Dependências
+- express-ejs-layouts: Para sistema de templates
+- @supabase/supabase-js: Cliente Supabase
 
-CREATE TABLE rooms (
-    id SERIAL PRIMARY KEY,
-    number TEXT NOT NULL UNIQUE,
-    category_id INTEGER REFERENCES room_categories(id),
-    status TEXT DEFAULT 'available',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE reservations (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id),
-    room_id INTEGER REFERENCES rooms(id),
-    check_in DATE NOT NULL,
-    check_out DATE NOT NULL,
-    status TEXT DEFAULT 'pending',
-    total_price DECIMAL(10,2) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE addresses (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id),
-    street TEXT NOT NULL,
-    city TEXT NOT NULL,
-    state TEXT NOT NULL,
-    postal_code TEXT NOT NULL,
-    country TEXT NOT NULL DEFAULT 'Brasil'
-);
+### Estrutura de Arquivos Atualizada
+```
+.
+├── src/
+│   ├── server.js        # Configuração EJS adicionada
+│   ├── routes/
+│   ├── controllers/
+│   └── database/
+├── views/               # Nova pasta de views
+│   ├── layout.ejs      # Template base
+│   └── tasks/
+│       ├── index.ejs   # Lista de tarefas
+│       └── form.ejs    # Formulário
+└── public/             # Assets estáticos
 ```
 
-## Fluxo de Dados
+### Rotas Adicionadas
+```javascript
+// View Routes
+app.get('/', (req, res) => {
+    res.render('tasks/index');
+});
 
-1. O cliente faz uma requisição HTTP para um endpoint específico
-2. O Router direciona a requisição para o Controller apropriado
-3. O Controller utiliza os Services necessários para processar a requisição
-4. Os Services utilizam os Models para interagir com o banco de dados
-5. Os dados são retornados através da mesma cadeia até o cliente
+app.get('/nova-tarefa', (req, res) => {
+    res.render('tasks/form');
+});
 
-## Endpoints da API
+app.get('/editar-tarefa/:id', (req, res) => {
+    res.render('tasks/form');
+});
+```
 
-### Usuários
-- `POST /api/users` - Criar novo usuário
-- `GET /api/users` - Listar usuários
-- `GET /api/users/:id` - Buscar usuário por ID
-- `PUT /api/users/:id` - Atualizar usuário
-- `DELETE /api/users/:id` - Deletar usuário
+## API Endpoints
 
-### Quartos
-- `POST /api/rooms` - Criar novo quarto
-- `GET /api/rooms` - Listar quartos
-- `GET /api/rooms/:id` - Buscar quarto por ID
-- `PUT /api/rooms/:id` - Atualizar quarto
-- `DELETE /api/rooms/:id` - Deletar quarto
-- `GET /api/rooms/available` - Listar quartos disponíveis
+A API RESTful provê os seguintes endpoints para gerenciamento dos recursos:
 
-### Reservas
-- `POST /api/reservations` - Criar nova reserva
-- `GET /api/reservations` - Listar reservas
-- `GET /api/reservations/:id` - Buscar reserva por ID
-- `PUT /api/reservations/:id` - Atualizar reserva
-- `DELETE /api/reservations/:id` - Cancelar reserva
-- `GET /api/users/:id/reservations` - Listar reservas de um usuário
+### Usuários (`/api/users`)
+- `GET /api/users`: Lista todos os usuários.
+- `POST /api/users`: Cria um novo usuário.
+- `GET /api/users/:id`: Obtém um usuário específico.
+- `PUT /api/users/:id`: Atualiza um usuário.
+- `DELETE /api/users/:id`: Remove um usuário.
 
-## Stack Tecnológica
+### Projetos (`/api/projetos`)
+- `GET /api/projetos`: Lista todos os projetos.
+- `POST /api/projetos`: Cria um novo projeto.
+- `GET /api/projetos/:id`: Obtém um projeto específico.
+- `PUT /api/projetos/:id`: Atualiza um projeto.
+- `DELETE /api/projetos/:id`: Remove um projeto.
 
-- **Backend**: Node.js com Express
-- **Banco de Dados**: PostgreSQL via Supabase
-- **ORM**: Supabase Client
-- **Autenticação**: Supabase Auth
-- **Validação**: express-validator
-- **Testes**: Jest 
+### Tarefas (`/api/tarefas`)
+- `GET /api/tarefas`: Lista todas as tarefas.
+- `POST /api/tarefas`: Cria uma nova tarefa.
+- `GET /api/tarefas/:id`: Obtém uma tarefa específica.
+- `PUT /api/tarefas/:id`: Atualiza uma tarefa.
+- `DELETE /api/tarefas/:id`: Remove uma tarefa.
+
+### Comentários
+- `POST /api/comentarios`: Cria um novo comentário (requer `tarefa_id` e `usuario_id` no corpo).
+- `GET /api/tarefas/:tarefaId/comentarios`: Lista todos os comentários de uma tarefa específica.
+- `GET /api/comentarios/:id`: Obtém um comentário específico.
+- `PUT /api/comentarios/:id`: Atualiza o texto de um comentário.
+- `DELETE /api/comentarios/:id`: Remove um comentário.
+
+### Categorias de Quarto (`/api/categorias-quartos`)
+- `GET /api/categorias-quartos`: Lista todas as categorias de quarto.
+- `POST /api/categorias-quartos`: Cria uma nova categoria de quarto.
+- `GET /api/categorias-quartos/:id`: Obtém uma categoria de quarto específica.
+- `PUT /api/categorias-quartos/:id`: Atualiza uma categoria de quarto.
+- `DELETE /api/categorias-quartos/:id`: Remove uma categoria de quarto.
+
+### Quartos (`/api/rooms`)
+- `GET /api/rooms`: Lista todos os quartos.
+- `POST /api/rooms`: Cria um novo quarto.
+- `GET /api/rooms/:id`: Obtém um quarto específico.
+- `PUT /api/rooms/:id`: Atualiza um quarto.
+- `DELETE /api/rooms/:id`: Remove um quarto.
+
+## Interface do Usuário
+
+### Componentes Principais
+
+#### Card de Tarefa
+- Design moderno com sombra e hover effect
+- Status colorido
+- Botões de ação
+- Informações bem organizadas
+
+#### Formulário
+- Campos validados
+- Feedback visual
+- Botões de ação claros
+- Navegação intuitiva
+
+### Estilização
+- Uso do Tailwind CSS para design responsivo
+- Sistema de cores consistente
+- Tipografia clara e legível
+- Espaçamento e alinhamento profissionais
+
+## Próximos Passos
+
+1. Implementar sistema de busca e filtros
+2. Adicionar paginação na lista de tarefas
+3. Implementar autenticação de usuários
+4. Adicionar categorias para tarefas
+5. Implementar sistema de notificações
+
+## Conclusão
+
+O sistema evoluiu de uma API REST para uma aplicação web completa com interface moderna e funcional. A integração do frontend com o backend foi feita de forma limpa e eficiente, mantendo a compatibilidade com a API existente enquanto adiciona novas funcionalidades para o usuário final. 

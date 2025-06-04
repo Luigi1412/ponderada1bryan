@@ -1,36 +1,37 @@
-# Sistema de Reserva de Hotel
+# Sistema de Gerenciamento de Tarefas
 
-Este é um sistema de reserva de hotel desenvolvido com Node.js, Express e Supabase. O sistema permite gerenciar usuários, quartos e reservas de um hotel.
+Este é um sistema completo de gerenciamento de tarefas com frontend em EJS e backend em Node.js, utilizando Express e PostgreSQL.
 
 ## Funcionalidades
 
-- Gerenciamento de usuários
-- Gerenciamento de quartos e categorias
-- Sistema de reservas
-- Verificação de disponibilidade
-- Gerenciamento de endereços
-- Histórico de reservas por usuário
+- Listagem de tarefas com interface moderna e responsiva
+- Criação de novas tarefas
+- Edição de tarefas existentes
+- Exclusão de tarefas
+- Status de tarefas (Pendente, Em Progresso, Concluída)
+- Interface amigável e intuitiva
 
 ## Tecnologias Utilizadas
 
 - Node.js
-- Express.js
-- Supabase (PostgreSQL)
-- Jest
-- express-validator
+- Express
+- EJS (Template Engine)
+- PostgreSQL
+- Tailwind CSS
+- Fetch API
 
 ## Pré-requisitos
 
-- Node.js 18+
-- Conta no Supabase
+- Node.js (versão 14 ou superior)
+- PostgreSQL
 - NPM ou Yarn
 
-## Instalação
+## Configuração
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/seu-usuario/hotel-reservation-system.git
-cd hotel-reservation-system
+git clone https://github.com/seu-usuario/seu-repositorio.git
+cd seu-repositorio
 ```
 
 2. Instale as dependências:
@@ -39,83 +40,39 @@ npm install
 ```
 
 3. Configure as variáveis de ambiente:
-- Copie o arquivo `.env.example` para `.env`
-- Preencha as variáveis com suas credenciais do Supabase
+Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+```
+DB_USER=seu_usuario_postgres
+DB_PASSWORD=sua_senha_postgres
+DB_NAME=nome_do_banco
+DB_HOST=localhost
+DB_PORT=5432
+```
 
+4. Inicialize o banco de dados:
 ```bash
-cp .env.example .env
+npm run init-db
 ```
 
-## Estrutura do Projeto
+## Executando o Sistema
 
-```
-.
-├── src/
-│   ├── config/          # Configurações do projeto
-│   ├── controllers/     # Controladores da aplicação
-│   ├── models/         # Modelos de dados
-│   ├── routes/         # Rotas da API
-│   ├── services/       # Serviços de negócio
-│   └── server.js       # Arquivo principal
-├── tests/              # Testes automatizados
-├── .env.example        # Exemplo de variáveis de ambiente
-├── package.json        # Dependências e scripts
-└── README.md          # Este arquivo
-```
-
-## Como Executar
-
-1. Em desenvolvimento:
+1. Inicie o servidor de desenvolvimento:
 ```bash
 npm run dev
 ```
 
-2. Em produção:
-```bash
-npm start
+2. Acesse o sistema no navegador:
+```
+http://localhost:3000
 ```
 
-3. Executar testes:
-```bash
-npm test
-```
-
-## API Endpoints
-
-### Usuários
-- `POST /api/users` - Criar usuário
-- `GET /api/users` - Listar usuários
-- `GET /api/users/:id` - Buscar usuário
-- `PUT /api/users/:id` - Atualizar usuário
-- `DELETE /api/users/:id` - Deletar usuário
-
-### Quartos
-- `POST /api/rooms` - Criar quarto
-- `GET /api/rooms` - Listar quartos
-- `GET /api/rooms/:id` - Buscar quarto
-- `PUT /api/rooms/:id` - Atualizar quarto
-- `DELETE /api/rooms/:id` - Deletar quarto
-- `GET /api/rooms/available` - Listar quartos disponíveis
-
-### Reservas
-- `POST /api/reservations` - Criar reserva
-- `GET /api/reservations` - Listar reservas
-- `GET /api/reservations/:id` - Buscar reserva
-- `PUT /api/reservations/:id` - Atualizar reserva
-- `DELETE /api/reservations/:id` - Cancelar reserva
-- `GET /api/users/:id/reservations` - Listar reservas do usuário
-
-## Arquitetura
-
-O projeto segue a arquitetura MVC (Model-View-Controller) com uma camada adicional de Services para lógica de negócios. Para mais detalhes sobre a arquitetura e o modelo de dados, consulte o arquivo [WAD.md](WAD.md).
-
-## Contribuindo
+## Contribuição
 
 1. Faça o fork do projeto
-2. Crie sua feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
+3. Commit suas mudanças (`git commit -am 'Adiciona nova feature'`)
+4. Push para a branch (`git push origin feature/nova-feature`)
+5. Crie um Pull Request 
 
 ## Licença
 

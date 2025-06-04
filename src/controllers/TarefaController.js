@@ -1,84 +1,91 @@
-const pool = require('../config/database');
+const TarefaModel = require('../models/TarefaModel');
 
-// Criar uma nova tarefa
+// Controller para gerenciar as requisições de Tarefas
+
+// Cria uma nova tarefa
 exports.criarTarefa = async (req, res) => {
-  const { nome, descricao } = req.body;
-
-  const query = 'INSERT INTO tarefas (nome, descricao) VALUES ($1, $2) RETURNING *';
-  const values = [nome, descricao];
-
   try {
-    const result = await pool.query(query, values);
-    const tarefa = result.rows[0];
-    res.status(201).json(tarefa);
+    // Extract all relevant fields from req.body
+    const { nome, descricao, status, projeto_id, responsavel_id, data_conclusao_prevista } = req.body;
+    
+    // Basic validation (optional, can be expanded)
+    if (!nome) {
+      return res.status(400).json({ error: 'O campo nome é obrigatório.' });
+    }
+
+    const tarefaData = { nome, descricao, status, projeto_id, responsavel_id, data_conclusao_prevista };
+    const novaTarefa = await TarefaModel.create(tarefaData);
+    res.status(201).json(novaTarefa); // Retorna a tarefa criada
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Erro no controller ao criar tarefa:', err.message);
+    res.status(500).json({ error: 'Erro interno ao criar tarefa.', details: err.message });
   }
 };
 
-// Listar todas as tarefas
+// Lista todas as tarefas
 exports.listarTarefas = async (req, res) => {
-  const query = 'SELECT * FROM tarefas';
-
   try {
-    const result = await pool.query(query);
-    res.status(200).json(result.rows);
+    const tarefas = await TarefaModel.getAll();
+    res.status(200).json(tarefas); // Retorna a lista de tarefas
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Erro no controller ao listar tarefas:', err.message);
+    res.status(500).json({ error: 'Erro interno ao listar tarefas.', details: err.message });
   }
 };
 
-// Get a single task by ID
+// Obtém uma tarefa específica pelo ID
 exports.obterTarefa = async (req, res) => {
   const { id } = req.params;
-  
   try {
-    const result = await pool.query('SELECT * FROM tarefas WHERE id = $1', [id]);
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'Task not found' });
+    const tarefa = await TarefaModel.getById(id);
+    if (!tarefa) {
+      return res.status(404).json({ message: 'Tarefa não encontrada.' });
     }
-    res.status(200).json(result.rows[0]);
+    res.status(200).json(tarefa); // Retorna a tarefa encontrada
   } catch (err) {
-    console.error('Error getting task:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Erro no controller ao obter tarefa:', err.message);
+    res.status(500).json({ error: 'Erro interno ao obter tarefa.', details: err.message });
   }
 };
 
-// Editar uma tarefa
+// Edita uma tarefa existente
 exports.editarTarefa = async (req, res) => {
   const { id } = req.params;
-  const { nome, descricao, status } = req.body;
-
-  const query = `
-    UPDATE tarefas SET nome = $1, descricao = $2, status = $3, updated_at = CURRENT_TIMESTAMP
-    WHERE id = $4 RETURNING *`;
-  const values = [nome, descricao, status, id];
-
   try {
-    const result = await pool.query(query, values);
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'Tarefa não encontrada' });
+    const { nome, descricao, status, projeto_id, responsavel_id, data_conclusao_prevista } = req.body;
+
+    // Basic validation (optional, can be expanded)
+    if (!nome) {
+        return res.status(400).json({ error: 'O campo nome é obrigatório para edição.' });
     }
-    res.status(200).json(result.rows[0]);
+    
+    const tarefaData = { nome, descricao, status, projeto_id, responsavel_id, data_conclusao_prevista };
+    const tarefaAtualizada = await TarefaModel.update(id, tarefaData);
+    
+    if (!tarefaAtualizada) {
+      return res.status(404).json({ message: 'Tarefa não encontrada para atualização.' });
+    }
+    res.status(200).json(tarefaAtualizada); // Retorna a tarefa atualizada
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Erro no controller ao editar tarefa:', err.message);
+    res.status(500).json({ error: 'Erro interno ao editar tarefa.', details: err.message });
   }
 };
 
-// Excluir uma tarefa
+// Exclui uma tarefa
 exports.excluirTarefa = async (req, res) => {
   const { id } = req.params;
-
-  const query = 'DELETE FROM tarefas WHERE id = $1 RETURNING *';
-  const values = [id];
-
   try {
-    const result = await pool.query(query, values);
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'Tarefa não encontrada' });
+    const tarefaExcluida = await TarefaModel.delete(id);
+    if (!tarefaExcluida) {
+      return res.status(404).json({ message: 'Tarefa não encontrada para exclusão.' });
     }
-    res.status(200).json({ message: 'Tarefa excluída com sucesso' });
+    // The activity example returns { message: 'Tarefa excluída com sucesso' }
+    // Returning the deleted object can also be useful, or a mix.
+    // For consistency with the example: 
+    res.status(200).json({ message: 'Tarefa excluída com sucesso.', tarefa: tarefaExcluida });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Erro no controller ao excluir tarefa:', err.message);
+    res.status(500).json({ error: 'Erro interno ao excluir tarefa.', details: err.message });
   }
 }; 

@@ -1,13 +1,24 @@
-const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
+const { Pool } = require('pg');
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
+// Criando a pool de conexões
+const pool = new Pool({
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
+});
 
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error('As variáveis de ambiente SUPABASE_URL e SUPABASE_KEY são obrigatórias');
-}
+// Testing the connection
+pool.on('connect', () => {
+  console.log('Connected to PostgreSQL database');
+});
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
+  process.exit(-1);
+});
 
-module.exports = supabase;
+module.exports = pool;
