@@ -1,28 +1,61 @@
 <% layout('layout') %>
-<h1>Usuários</h1>
-<a href="/users/new">Novo Usuário</a>
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Nome</th>
-      <th>Email</th>
-      <th>Ações</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% users.forEach(user => { %>
-      <tr>
-        <td><%= user.id %></td>
-        <td><%= user.nome %></td>
-        <td><%= user.email %></td>
-        <td>
-          <a href="/users/<%= user.id %>/edit">Editar</a>
-          <form action="/users/<%= user.id %>?_method=DELETE" method="POST" style="display:inline;">
-            <button type="submit">Excluir</button>
-          </form>
-        </td>
-      </tr>
-    <% }) %>
-  </tbody>
-</table>
+<div class="max-w-2xl mx-auto bg-white rounded-lg shadow p-6 mt-10 fade-in">
+  <h1 class="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
+    <i class="fas fa-user text-indigo-600"></i> Usuários
+  </h1>
+  <div class="flex gap-2 mb-6">
+    <input id="novo-nome" class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="Nome">
+    <input id="novo-email" class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="Email">
+    <button class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition" onclick="criarUsuario()">Adicionar</button>
+  </div>
+  <ul id="lista-usuarios" class="space-y-2"></ul>
+</div>
+
+<script>
+async function carregarUsuarios() {
+  const res = await fetch('/users/api');
+  const usuarios = await res.json();
+  const lista = document.getElementById('lista-usuarios');
+  lista.innerHTML = '';
+  usuarios.forEach(usuario => {
+    const li = document.createElement('li');
+    li.className = "flex justify-between items-center bg-gray-100 rounded px-4 py-2";
+    li.innerHTML = `
+      <span class="text-gray-700">${usuario.nome} (${usuario.email})</span>
+      <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition" onclick="deletarUsuario(${usuario.id})">
+        <i class="fas fa-trash"></i> Excluir
+      </button>
+    `;
+    lista.appendChild(li);
+  });
+}
+
+async function criarUsuario() {
+  const nome = document.getElementById('novo-nome').value;
+  const email = document.getElementById('novo-email').value;
+  if (!nome || !email) {
+    showToast('Preencha nome e email', 'error');
+    return;
+  }
+  const btn = document.querySelector('button[onclick="criarUsuario()"]');
+  btn.disabled = true;
+  await fetch('/users/api', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nome, email })
+  });
+  btn.disabled = false;
+  document.getElementById('novo-nome').value = '';
+  document.getElementById('novo-email').value = '';
+  showToast('Usuário criado com sucesso!');
+  carregarUsuarios();
+}
+
+async function deletarUsuario(id) {
+  await fetch('/users/api/' + id, { method: 'DELETE' });
+  showToast('Usuário excluído com sucesso!');
+  carregarUsuarios();
+}
+
+window.onload = carregarUsuarios;
+</script>

@@ -2,13 +2,13 @@
 
 ## Visão Geral
 
-Sistema web completo para gerenciamento de tarefas, reservas de hotel e entidades relacionadas, com arquitetura MVC, integração com PostgreSQL e interface EJS.
+Sistema web completo para gerenciamento de tarefas, reservas de hotel e entidades relacionadas, com arquitetura MVC, integração com PostgreSQL e interface EJS estilizada com Tailwind CSS.
 
 ## Arquitetura
 
 - **Model:** SQL puro via `pg` para cada entidade.
 - **Controller:** Lógica de negócio, validação e resposta HTTP.
-- **View:** EJS para interface web, com layout e partials.
+- **View:** EJS para interface web, com layout, partials e Tailwind.
 - **Rotas:** RESTful para API e rotas de views.
 
 ## Estrutura de Pastas
@@ -114,6 +114,7 @@ public/
 - Cada entidade possui views EJS para listagem (`index.ejs`) e formulário (`form.ejs`).
 - Layout e partials para cabeçalho e rodapé.
 - Navegação entre entidades via menu.
+- Estilização com Tailwind CSS.
 
 ## Como Rodar
 

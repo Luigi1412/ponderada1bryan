@@ -1,34 +1,67 @@
 <% layout('layout') %>
-<h1>Avaliações</h1>
-<a href="/avaliacoes/new">Nova Avaliação</a>
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Usuário</th>
-      <th>Quarto</th>
-      <th>Nota</th>
-      <th>Comentário</th>
-      <th>Data</th>
-      <th>Ações</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% avaliacoes.forEach(avaliacao => { %>
-      <tr>
-        <td><%= avaliacao.id %></td>
-        <td><%= avaliacao.user_id %></td>
-        <td><%= avaliacao.room_id %></td>
-        <td><%= avaliacao.nota %></td>
-        <td><%= avaliacao.comentario %></td>
-        <td><%= avaliacao.data_avaliacao %></td>
-        <td>
-          <a href="/avaliacoes/<%= avaliacao.id %>/edit">Editar</a>
-          <form action="/avaliacoes/<%= avaliacao.id %>?_method=DELETE" method="POST" style="display:inline;">
-            <button type="submit">Excluir</button>
-          </form>
-        </td>
-      </tr>
-    <% }) %>
-  </tbody>
-</table>
+<div class="max-w-2xl mx-auto bg-white rounded-lg shadow p-6 mt-10 fade-in">
+  <h1 class="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
+    <i class="fas fa-star text-indigo-600"></i> Avaliações
+  </h1>
+  <div class="flex gap-2 mb-6 flex-wrap">
+    <input id="nova-nota" type="number" min="1" max="5" class="w-20 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="Nota">
+    <input id="novo-comentario" class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="Comentário">
+    <input id="novo-usuario" class="w-32 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="ID do usuário">
+    <input id="nova-tarefa" class="w-32 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="ID da tarefa">
+    <button class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition" onclick="criarAvaliacao()">Adicionar</button>
+  </div>
+  <ul id="lista-avaliacoes" class="space-y-2"></ul>
+</div>
+
+<script>
+async function carregarAvaliacoes() {
+  const res = await fetch('/avaliacoes/api');
+  const avaliacoes = await res.json();
+  const lista = document.getElementById('lista-avaliacoes');
+  lista.innerHTML = '';
+  avaliacoes.forEach(avaliacao => {
+    const li = document.createElement('li');
+    li.className = "flex justify-between items-center bg-gray-100 rounded px-4 py-2";
+    li.innerHTML = `
+      <span class="text-gray-700">Nota: ${avaliacao.nota} - ${avaliacao.comentario || ''} (Usuário: ${avaliacao.usuario_id}, Tarefa: ${avaliacao.tarefa_id})</span>
+      <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition" onclick="deletarAvaliacao(${avaliacao.id})">
+        <i class="fas fa-trash"></i> Excluir
+      </button>
+    `;
+    lista.appendChild(li);
+  });
+}
+
+async function criarAvaliacao() {
+  const nota = document.getElementById('nova-nota').value;
+  const comentario = document.getElementById('novo-comentario').value;
+  const usuario_id = document.getElementById('novo-usuario').value;
+  const tarefa_id = document.getElementById('nova-tarefa').value;
+  if (!nota || !usuario_id || !tarefa_id) {
+    showToast('Preencha nota, usuário e tarefa', 'error');
+    return;
+  }
+  const btn = document.querySelector('button[onclick="criarAvaliacao()"]');
+  btn.disabled = true;
+  await fetch('/avaliacoes/api', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nota, comentario, usuario_id, tarefa_id })
+  });
+  btn.disabled = false;
+  document.getElementById('nova-nota').value = '';
+  document.getElementById('novo-comentario').value = '';
+  document.getElementById('novo-usuario').value = '';
+  document.getElementById('nova-tarefa').value = '';
+  showToast('Avaliação criada com sucesso!');
+  carregarAvaliacoes();
+}
+
+async function deletarAvaliacao(id) {
+  await fetch('/avaliacoes/api/' + id, { method: 'DELETE' });
+  showToast('Avaliação excluída com sucesso!');
+  carregarAvaliacoes();
+}
+
+window.onload = carregarAvaliacoes;
+</script>

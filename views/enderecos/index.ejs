@@ -1,36 +1,70 @@
 <% layout('layout') %>
-<h1>Endereços</h1>
-<a href="/enderecos/new">Novo Endereço</a>
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Usuário</th>
-      <th>Rua</th>
-      <th>Número</th>
-      <th>Cidade</th>
-      <th>Estado</th>
-      <th>CEP</th>
-      <th>Ações</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% enderecos.forEach(endereco => { %>
-      <tr>
-        <td><%= endereco.id %></td>
-        <td><%= endereco.user_id %></td>
-        <td><%= endereco.rua %></td>
-        <td><%= endereco.numero %></td>
-        <td><%= endereco.cidade %></td>
-        <td><%= endereco.estado %></td>
-        <td><%= endereco.cep %></td>
-        <td>
-          <a href="/enderecos/<%= endereco.id %>/edit">Editar</a>
-          <form action="/enderecos/<%= endereco.id %>?_method=DELETE" method="POST" style="display:inline;">
-            <button type="submit">Excluir</button>
-          </form>
-        </td>
-      </tr>
-    <% }) %>
-  </tbody>
-</table>
+<div class="max-w-2xl mx-auto bg-white rounded-lg shadow p-6 mt-10 fade-in">
+  <h1 class="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
+    <i class="fas fa-map-marker-alt text-indigo-600"></i> Endereços
+  </h1>
+  <div class="flex gap-2 mb-6 flex-wrap">
+    <input id="nova-rua" class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="Rua">
+    <input id="novo-numero" class="w-24 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="Número">
+    <input id="nova-cidade" class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="Cidade">
+    <input id="novo-estado" class="w-24 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="Estado">
+    <input id="novo-usuario" class="w-32 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="ID do usuário">
+    <button class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition" onclick="criarEndereco()">Adicionar</button>
+  </div>
+  <ul id="lista-enderecos" class="space-y-2"></ul>
+</div>
+
+<script>
+async function carregarEnderecos() {
+  const res = await fetch('/enderecos/api');
+  const enderecos = await res.json();
+  const lista = document.getElementById('lista-enderecos');
+  lista.innerHTML = '';
+  enderecos.forEach(endereco => {
+    const li = document.createElement('li');
+    li.className = "flex justify-between items-center bg-gray-100 rounded px-4 py-2";
+    li.innerHTML = `
+      <span class="text-gray-700">${endereco.rua}, ${endereco.numero} - ${endereco.cidade}/${endereco.estado} (Usuário: ${endereco.usuario_id})</span>
+      <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition" onclick="deletarEndereco(${endereco.id})">
+        <i class="fas fa-trash"></i> Excluir
+      </button>
+    `;
+    lista.appendChild(li);
+  });
+}
+
+async function criarEndereco() {
+  const rua = document.getElementById('nova-rua').value;
+  const numero = document.getElementById('novo-numero').value;
+  const cidade = document.getElementById('nova-cidade').value;
+  const estado = document.getElementById('novo-estado').value;
+  const usuario_id = document.getElementById('novo-usuario').value;
+  if (!rua || !numero || !cidade || !estado || !usuario_id) {
+    showToast('Preencha todos os campos', 'error');
+    return;
+  }
+  const btn = document.querySelector('button[onclick="criarEndereco()"]');
+  btn.disabled = true;
+  await fetch('/enderecos/api', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ rua, numero, cidade, estado, usuario_id })
+  });
+  btn.disabled = false;
+  document.getElementById('nova-rua').value = '';
+  document.getElementById('novo-numero').value = '';
+  document.getElementById('nova-cidade').value = '';
+  document.getElementById('novo-estado').value = '';
+  document.getElementById('novo-usuario').value = '';
+  showToast('Endereço criado com sucesso!');
+  carregarEnderecos();
+}
+
+async function deletarEndereco(id) {
+  await fetch('/enderecos/api/' + id, { method: 'DELETE' });
+  showToast('Endereço excluído com sucesso!');
+  carregarEnderecos();
+}
+
+window.onload = carregarEnderecos;
+</script>

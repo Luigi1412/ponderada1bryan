@@ -1,6 +1,6 @@
 # Sistema de Gerenciamento de Tarefas e Reservas
 
-Este é um sistema completo de gerenciamento de tarefas, reservas de hotel e entidades relacionadas, com frontend em EJS e backend em Node.js, utilizando Express e PostgreSQL.
+Este é um sistema completo de gerenciamento de tarefas, reservas de hotel e entidades relacionadas, com frontend em EJS e Tailwind CSS e backend em Node.js, utilizando Express e PostgreSQL.
 
 ## Funcionalidades
 
@@ -109,4 +109,4 @@ Veja o arquivo [WAD.md](./WAD.md) para a lista completa de endpoints e exemplos 
 2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
 3. Commit suas mudanças (`git commit -am 'Adiciona nova feature'`)
 4. Push para a branch (`git push origin feature/nova-feature`)
-5. Crie um Pull Request 
+5. Crie um Pull Request

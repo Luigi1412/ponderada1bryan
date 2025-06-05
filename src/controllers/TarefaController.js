@@ -1,24 +1,16 @@
 const TarefaModel = require('../models/TarefaModel');
 
-// Controller para gerenciar as requisições de Tarefas
-
 // Cria uma nova tarefa
 exports.criarTarefa = async (req, res) => {
   try {
-    // Extract all relevant fields from req.body
-    const { nome, descricao, status, projeto_id, responsavel_id, data_conclusao_prevista } = req.body;
-    
-    // Basic validation (optional, can be expanded)
+    const { nome } = req.body;
     if (!nome) {
       return res.status(400).json({ error: 'O campo nome é obrigatório.' });
     }
-
-    const tarefaData = { nome, descricao, status, projeto_id, responsavel_id, data_conclusao_prevista };
-    const novaTarefa = await TarefaModel.create(tarefaData);
-    res.status(201).json(novaTarefa); // Retorna a tarefa criada
+    const novaTarefa = await TarefaModel.create({ nome });
+    res.status(201).json(novaTarefa);
   } catch (err) {
-    console.error('Erro no controller ao criar tarefa:', err.message);
-    res.status(500).json({ error: 'Erro interno ao criar tarefa.', details: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -26,66 +18,80 @@ exports.criarTarefa = async (req, res) => {
 exports.listarTarefas = async (req, res) => {
   try {
     const tarefas = await TarefaModel.getAll();
-    res.status(200).json(tarefas); // Retorna a lista de tarefas
+    res.status(200).json(tarefas);
   } catch (err) {
-    console.error('Erro no controller ao listar tarefas:', err.message);
-    res.status(500).json({ error: 'Erro interno ao listar tarefas.', details: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
-// Obtém uma tarefa específica pelo ID
+// Obtém uma tarefa específica
 exports.obterTarefa = async (req, res) => {
-  const { id } = req.params;
   try {
-    const tarefa = await TarefaModel.getById(id);
-    if (!tarefa) {
-      return res.status(404).json({ message: 'Tarefa não encontrada.' });
-    }
-    res.status(200).json(tarefa); // Retorna a tarefa encontrada
+    const tarefa = await TarefaModel.getById(req.params.id);
+    if (!tarefa) return res.status(404).json({ error: 'Tarefa não encontrada.' });
+    res.status(200).json(tarefa);
   } catch (err) {
-    console.error('Erro no controller ao obter tarefa:', err.message);
-    res.status(500).json({ error: 'Erro interno ao obter tarefa.', details: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
-// Edita uma tarefa existente
+// Edita uma tarefa
 exports.editarTarefa = async (req, res) => {
-  const { id } = req.params;
   try {
-    const { nome, descricao, status, projeto_id, responsavel_id, data_conclusao_prevista } = req.body;
-
-    // Basic validation (optional, can be expanded)
-    if (!nome) {
-        return res.status(400).json({ error: 'O campo nome é obrigatório para edição.' });
-    }
-    
-    const tarefaData = { nome, descricao, status, projeto_id, responsavel_id, data_conclusao_prevista };
-    const tarefaAtualizada = await TarefaModel.update(id, tarefaData);
-    
-    if (!tarefaAtualizada) {
-      return res.status(404).json({ message: 'Tarefa não encontrada para atualização.' });
-    }
-    res.status(200).json(tarefaAtualizada); // Retorna a tarefa atualizada
+    const { nome } = req.body;
+    const tarefaAtualizada = await TarefaModel.update(req.params.id, { nome });
+    if (!tarefaAtualizada) return res.status(404).json({ error: 'Tarefa não encontrada.' });
+    res.status(200).json(tarefaAtualizada);
   } catch (err) {
-    console.error('Erro no controller ao editar tarefa:', err.message);
-    res.status(500).json({ error: 'Erro interno ao editar tarefa.', details: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
 // Exclui uma tarefa
 exports.excluirTarefa = async (req, res) => {
-  const { id } = req.params;
   try {
-    const tarefaExcluida = await TarefaModel.delete(id);
-    if (!tarefaExcluida) {
-      return res.status(404).json({ message: 'Tarefa não encontrada para exclusão.' });
-    }
-    // The activity example returns { message: 'Tarefa excluída com sucesso' }
-    // Returning the deleted object can also be useful, or a mix.
-    // For consistency with the example: 
-    res.status(200).json({ message: 'Tarefa excluída com sucesso.', tarefa: tarefaExcluida });
+    const tarefaExcluida = await TarefaModel.delete(req.params.id);
+    if (!tarefaExcluida) return res.status(404).json({ error: 'Tarefa não encontrada.' });
+    res.status(200).json({ message: 'Tarefa excluída com sucesso.' });
   } catch (err) {
-    console.error('Erro no controller ao excluir tarefa:', err.message);
-    res.status(500).json({ error: 'Erro interno ao excluir tarefa.', details: err.message });
+    res.status(500).json({ error: err.message });
   }
-}; 
+};
+
+// ==================== MÉTODOS DE API PARA FETCH ====================
+
+exports.apiListar = async (req, res) => {
+  try {
+    const tarefas = await TarefaModel.getAll();
+    res.json(tarefas);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.apiCriar = async (req, res) => {
+  try {
+    const tarefa = await TarefaModel.create(req.body);
+    res.status(201).json(tarefa);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.apiAtualizar = async (req, res) => {
+  try {
+    const tarefa = await TarefaModel.update(req.params.id, req.body);
+    res.json(tarefa);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.apiDeletar = async (req, res) => {
+  try {
+    await TarefaModel.delete(req.params.id);
+    res.json({ message: 'Tarefa excluída' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

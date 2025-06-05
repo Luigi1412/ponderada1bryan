@@ -1,104 +1,97 @@
 const ComentarioModel = require('../models/ComentarioModel');
-const TarefaModel = require('../models/TarefaModel'); // Usado para verificar se a tarefa existe
-// const UsuarioModel = require('../models/UsuarioModel'); // Descomentar se for validar a existência do usuário
 
-// Controller para gerenciar as requisições de Comentários
-
-// Cria um novo comentário para uma tarefa
+// Cria um novo comentário
 exports.criarComentario = async (req, res) => {
   try {
-    // Pega tarefa_id de req.params se existir (rota aninhada), senão de req.body
-    const idDaTarefa = req.params.tarefaId || req.body.tarefa_id;
-    const { texto, usuario_id } = req.body; // tarefa_id foi movido para idDaTarefa
-
-    if (!texto || !idDaTarefa || !usuario_id) {
-      return res.status(400).json({ error: 'Texto, ID da tarefa e ID do usuário são obrigatórios.' });
+    const { texto, tarefa_id, usuario_id } = req.body;
+    if (!texto || !tarefa_id || !usuario_id) {
+      return res.status(400).json({ error: 'Texto, tarefa_id e usuario_id são obrigatórios.' });
     }
-
-    // Validação: Verificar se a tarefa associada existe
-    const tarefaExiste = await TarefaModel.getById(idDaTarefa);
-    if (!tarefaExiste) {
-      return res.status(404).json({ error: 'Tarefa não encontrada para associar o comentário.' });
-    }
-    // Poderia validar se o usuario_id existe também, se necessário
-
-    const novoComentario = await ComentarioModel.create({ texto, tarefa_id: idDaTarefa, usuario_id });
-    res.status(201).json(novoComentario); // Retorna o comentário criado
+    const novoComentario = await ComentarioModel.create({ texto, tarefa_id, usuario_id });
+    res.status(201).json(novoComentario);
   } catch (err) {
-    console.error('Erro no controller ao criar comentário:', err.message);
-    if (err.code === '23503') { // Violação de chave estrangeira (tarefa_id ou usuario_id inválido)
-        return res.status(400).json({ error: 'ID da tarefa ou ID do usuário inválido(s).' });
-    }
-    res.status(500).json({ error: 'Erro interno ao criar comentário.', details: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
-// Lista todos os comentários de uma tarefa específica
-exports.listarComentariosPorTarefa = async (req, res) => {
-  const { tarefaId } = req.params; // ID da tarefa vindo da rota
+// Lista todos os comentários
+exports.listarComentarios = async (req, res) => {
   try {
-    // Validação: Verificar se a tarefa existe antes de listar os comentários
-    const tarefaExiste = await TarefaModel.getById(tarefaId);
-    if (!tarefaExiste) {
-      return res.status(404).json({ message: 'Tarefa não encontrada.' });
-    }
-
-    const comentarios = await ComentarioModel.getAllByTarefaId(tarefaId);
-    res.status(200).json(comentarios); // Retorna a lista de comentários
+    const comentarios = await ComentarioModel.getAll();
+    res.status(200).json(comentarios);
   } catch (err) {
-    console.error('Erro no controller ao listar comentários por tarefa:', err.message);
-    res.status(500).json({ error: 'Erro interno ao listar comentários.', details: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
-// Obtém um comentário específico pelo seu ID
+// Obtém um comentário específico
 exports.obterComentario = async (req, res) => {
-  const { id } = req.params; // ID do comentário
   try {
-    const comentario = await ComentarioModel.getById(id);
-    if (!comentario) {
-      return res.status(404).json({ message: 'Comentário não encontrado.' });
-    }
-    res.status(200).json(comentario); // Retorna o comentário encontrado
+    const comentario = await ComentarioModel.getById(req.params.id);
+    if (!comentario) return res.status(404).json({ error: 'Comentário não encontrado.' });
+    res.status(200).json(comentario);
   } catch (err) {
-    console.error('Erro no controller ao obter comentário:', err.message);
-    res.status(500).json({ error: 'Erro interno ao obter comentário.', details: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
-// Edita um comentário existente
+// Edita um comentário
 exports.editarComentario = async (req, res) => {
-  const { id } = req.params; // ID do comentário a ser editado
   try {
     const { texto } = req.body;
-    if (!texto) {
-      return res.status(400).json({ error: 'O texto do comentário é obrigatório para atualização.' });
-    }
-    // Aqui poderiam entrar verificações de permissão (ex: só o autor pode editar)
-
-    const comentarioAtualizado = await ComentarioModel.update(id, { texto });
-    if (!comentarioAtualizado) {
-        return res.status(404).json({ message: 'Comentário não encontrado para atualização.' });
-    }
-    res.status(200).json(comentarioAtualizado); // Retorna o comentário atualizado
+    const comentarioAtualizado = await ComentarioModel.update(req.params.id, { texto });
+    if (!comentarioAtualizado) return res.status(404).json({ error: 'Comentário não encontrado.' });
+    res.status(200).json(comentarioAtualizado);
   } catch (err) {
-    console.error('Erro no controller ao editar comentário:', err.message);
-    res.status(500).json({ error: 'Erro interno ao editar comentário.', details: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
 // Exclui um comentário
 exports.excluirComentario = async (req, res) => {
-  const { id } = req.params; // ID do comentário a ser excluído
   try {
-    // Aqui poderiam entrar verificações de permissão
-    const comentarioExcluido = await ComentarioModel.delete(id);
-    if (!comentarioExcluido) {
-      return res.status(404).json({ message: 'Comentário não encontrado para exclusão.' });
-    }
-    res.status(200).json({ message: 'Comentário excluído com sucesso.', comentario: comentarioExcluido });
+    const comentarioExcluido = await ComentarioModel.delete(req.params.id);
+    if (!comentarioExcluido) return res.status(404).json({ error: 'Comentário não encontrado.' });
+    res.status(200).json({ message: 'Comentário excluído com sucesso.' });
   } catch (err) {
-    console.error('Erro no controller ao excluir comentário:', err.message);
-    res.status(500).json({ error: 'Erro interno ao excluir comentário.', details: err.message });
+    res.status(500).json({ error: err.message });
   }
-}; 
+};
+
+// ==================== MÉTODOS DE API PARA FETCH ====================
+
+exports.apiListar = async (req, res) => {
+  try {
+    const comentarios = await ComentarioModel.getAll();
+    res.json(comentarios);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.apiCriar = async (req, res) => {
+  try {
+    const comentario = await ComentarioModel.create(req.body);
+    res.status(201).json(comentario);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.apiAtualizar = async (req, res) => {
+  try {
+    const comentario = await ComentarioModel.update(req.params.id, req.body);
+    res.json(comentario);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.apiDeletar = async (req, res) => {
+  try {
+    await ComentarioModel.delete(req.params.id);
+    res.json({ message: 'Comentário excluído' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

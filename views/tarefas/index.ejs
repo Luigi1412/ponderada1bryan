@@ -1,28 +1,58 @@
 <% layout('layout') %>
-<h1>Tarefas</h1>
-<a href="/tarefas/new">Nova Tarefa</a>
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Título</th>
-      <th>Status</th>
-      <th>Ações</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% tarefas.forEach(tarefa => { %>
-      <tr>
-        <td><%= tarefa.id %></td>
-        <td><%= tarefa.titulo %></td>
-        <td><%= tarefa.status %></td>
-        <td>
-          <a href="/tarefas/<%= tarefa.id %>/edit">Editar</a>
-          <form action="/tarefas/<%= tarefa.id %>?_method=DELETE" method="POST" style="display:inline;">
-            <button type="submit">Excluir</button>
-          </form>
-        </td>
-      </tr>
-    <% }) %>
-  </tbody>
-</table>
+<div class="max-w-2xl mx-auto bg-white rounded-lg shadow p-6 mt-10 fade-in">
+  <h1 class="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
+    <i class="fas fa-tasks text-indigo-600"></i> Tarefas
+  </h1>
+  <div class="flex gap-2 mb-6">
+    <input id="novo-titulo" class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="Nova tarefa">
+    <button class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition" onclick="criarTarefa()">Adicionar</button>
+  </div>
+  <ul id="lista-tarefas" class="space-y-2"></ul>
+</div>
+
+<script>
+async function carregarTarefas() {
+  const res = await fetch('/tarefas/api');
+  const tarefas = await res.json();
+  const lista = document.getElementById('lista-tarefas');
+  lista.innerHTML = '';
+  tarefas.forEach(tarefa => {
+    const li = document.createElement('li');
+    li.className = "task-card flex justify-between items-center bg-gray-100 rounded px-4 py-2";
+    li.innerHTML = `
+      <span class="text-gray-700">${tarefa.nome || tarefa.titulo}</span>
+      <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition delete-btn" onclick="deletarTarefa(${tarefa.id})">
+        <i class="fas fa-trash"></i> Excluir
+      </button>
+    `;
+    lista.appendChild(li);
+  });
+}
+
+async function criarTarefa() {
+  const titulo = document.getElementById('novo-titulo').value;
+  if (!titulo) {
+    showToast('Digite o nome da tarefa', 'error');
+    return;
+  }
+  const btn = document.querySelector('button[onclick="criarTarefa()"]');
+  btn.disabled = true;
+  await fetch('/tarefas/api', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nome: titulo })
+  });
+  btn.disabled = false;
+  document.getElementById('novo-titulo').value = '';
+  showToast('Tarefa criada com sucesso!');
+  carregarTarefas();
+}
+
+async function deletarTarefa(id) {
+  await fetch('/tarefas/api/' + id, { method: 'DELETE' });
+  showToast('Tarefa excluída com sucesso!');
+  carregarTarefas();
+}
+
+window.onload = carregarTarefas;
+</script>

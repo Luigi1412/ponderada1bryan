@@ -1,32 +1,64 @@
 <% layout('layout') %>
-<h1>Comentários</h1>
-<a href="/comentarios/new">Novo Comentário</a>
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Tarefa</th>
-      <th>Usuário</th>
-      <th>Comentário</th>
-      <th>Data</th>
-      <th>Ações</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% comentarios.forEach(comentario => { %>
-      <tr>
-        <td><%= comentario.id %></td>
-        <td><%= comentario.tarefa_id %></td>
-        <td><%= comentario.user_id %></td>
-        <td><%= comentario.comentario %></td>
-        <td><%= comentario.data_comentario %></td>
-        <td>
-          <a href="/comentarios/<%= comentario.id %>/edit">Editar</a>
-          <form action="/comentarios/<%= comentario.id %>?_method=DELETE" method="POST" style="display:inline;">
-            <button type="submit">Excluir</button>
-          </form>
-        </td>
-      </tr>
-    <% }) %>
-  </tbody>
-</table>
+<div class="max-w-2xl mx-auto bg-white rounded-lg shadow p-6 mt-10 fade-in">
+  <h1 class="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
+    <i class="fas fa-comments text-indigo-600"></i> Comentários
+  </h1>
+  <div class="flex gap-2 mb-6">
+    <input id="novo-texto" class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="Texto do comentário">
+    <input id="novo-tarefa" class="w-32 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="ID da tarefa">
+    <input id="novo-usuario" class="w-32 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="ID do usuário">
+    <button class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition" onclick="criarComentario()">Adicionar</button>
+  </div>
+  <ul id="lista-comentarios" class="space-y-2"></ul>
+</div>
+
+<script>
+async function carregarComentarios() {
+  const res = await fetch('/comentarios/api');
+  const comentarios = await res.json();
+  const lista = document.getElementById('lista-comentarios');
+  lista.innerHTML = '';
+  comentarios.forEach(comentario => {
+    const li = document.createElement('li');
+    li.className = "flex justify-between items-center bg-gray-100 rounded px-4 py-2";
+    li.innerHTML = `
+      <span class="text-gray-700">${comentario.texto} (Tarefa: ${comentario.tarefa_id}, Usuário: ${comentario.usuario_id})</span>
+      <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition" onclick="deletarComentario(${comentario.id})">
+        <i class="fas fa-trash"></i> Excluir
+      </button>
+    `;
+    lista.appendChild(li);
+  });
+}
+
+async function criarComentario() {
+  const texto = document.getElementById('novo-texto').value;
+  const tarefa_id = document.getElementById('novo-tarefa').value;
+  const usuario_id = document.getElementById('novo-usuario').value;
+  if (!texto || !tarefa_id || !usuario_id) {
+    showToast('Preencha todos os campos', 'error');
+    return;
+  }
+  const btn = document.querySelector('button[onclick="criarComentario()"]');
+  btn.disabled = true;
+  await fetch('/comentarios/api', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ texto, tarefa_id, usuario_id })
+  });
+  btn.disabled = false;
+  document.getElementById('novo-texto').value = '';
+  document.getElementById('novo-tarefa').value = '';
+  document.getElementById('novo-usuario').value = '';
+  showToast('Comentário criado com sucesso!');
+  carregarComentarios();
+}
+
+async function deletarComentario(id) {
+  await fetch('/comentarios/api/' + id, { method: 'DELETE' });
+  showToast('Comentário excluído com sucesso!');
+  carregarComentarios();
+}
+
+window.onload = carregarComentarios;
+</script>

@@ -1,32 +1,61 @@
 <% layout('layout') %>
-<h1>Quartos</h1>
-<a href="/rooms/new">Novo Quarto</a>
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Número</th>
-      <th>Descrição</th>
-      <th>Capacidade</th>
-      <th>Categoria</th>
-      <th>Ações</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% rooms.forEach(room => { %>
-      <tr>
-        <td><%= room.id %></td>
-        <td><%= room.numero %></td>
-        <td><%= room.descricao %></td>
-        <td><%= room.capacidade %></td>
-        <td><%= room.categoria_id %></td>
-        <td>
-          <a href="/rooms/<%= room.id %>/edit">Editar</a>
-          <form action="/rooms/<%= room.id %>?_method=DELETE" method="POST" style="display:inline;">
-            <button type="submit">Excluir</button>
-          </form>
-        </td>
-      </tr>
-    <% }) %>
-  </tbody>
-</table>
+<div class="max-w-2xl mx-auto bg-white rounded-lg shadow p-6 mt-10 fade-in">
+  <h1 class="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
+    <i class="fas fa-door-open text-indigo-600"></i> Quartos
+  </h1>
+  <div class="flex gap-2 mb-6">
+    <input id="novo-nome" class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="Nome do quarto">
+    <input id="nova-descricao" class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="Descrição">
+    <button class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition" onclick="criarRoom()">Adicionar</button>
+  </div>
+  <ul id="lista-rooms" class="space-y-2"></ul>
+</div>
+
+<script>
+async function carregarRooms() {
+  const res = await fetch('/rooms/api');
+  const rooms = await res.json();
+  const lista = document.getElementById('lista-rooms');
+  lista.innerHTML = '';
+  rooms.forEach(room => {
+    const li = document.createElement('li');
+    li.className = "flex justify-between items-center bg-gray-100 rounded px-4 py-2";
+    li.innerHTML = `
+      <span class="text-gray-700">${room.nome} - ${room.descricao || ''}</span>
+      <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition" onclick="deletarRoom(${room.id})">
+        <i class="fas fa-trash"></i> Excluir
+      </button>
+    `;
+    lista.appendChild(li);
+  });
+}
+
+async function criarRoom() {
+  const nome = document.getElementById('novo-nome').value;
+  const descricao = document.getElementById('nova-descricao').value;
+  if (!nome) {
+    showToast('Preencha o nome do quarto', 'error');
+    return;
+  }
+  const btn = document.querySelector('button[onclick="criarRoom()"]');
+  btn.disabled = true;
+  await fetch('/rooms/api', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nome, descricao })
+  });
+  btn.disabled = false;
+  document.getElementById('novo-nome').value = '';
+  document.getElementById('nova-descricao').value = '';
+  showToast('Quarto criado com sucesso!');
+  carregarRooms();
+}
+
+async function deletarRoom(id) {
+  await fetch('/rooms/api/' + id, { method: 'DELETE' });
+  showToast('Quarto excluído com sucesso!');
+  carregarRooms();
+}
+
+window.onload = carregarRooms;
+</script>
