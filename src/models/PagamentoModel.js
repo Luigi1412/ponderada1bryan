@@ -18,20 +18,33 @@ const PagamentoModel = {
     }
   },
 
-  // Busca todos os pagamentos
-  async getAll() {
-    const query = `
+  // Busca todos os pagamentos, com filtro opcional por status
+  async getAll({ status } = {}) {
+    let query = `
       SELECT 
-        p.*,
-        r.id as reserva_id_display,
-        u.nome as usuario_nome
+        p.id,
+        p.reserva_id,
+        p.valor,
+        p.metodo,
+        p.status,
+        p.data_pagamento,
+        u.nome as user_nome 
       FROM pagamentos p
-      JOIN reservations r ON p.reserva_id = r.id
-      JOIN users u ON r.user_id = u.id
-      ORDER BY p.data_pagamento DESC;
+      LEFT JOIN reservations r ON p.reserva_id = r.id
+      LEFT JOIN users u ON r.user_id = u.id
     `;
+    
+    const values = [];
+    
+    if (status) {
+      query += ' WHERE p.status = $1';
+      values.push(status);
+    }
+    
+    query += ' ORDER BY p.data_pagamento DESC;';
+
     try {
-      const result = await pool.query(query);
+      const result = await pool.query(query, values);
       return result.rows;
     } catch (err) {
       console.error('Erro ao buscar todos os pagamentos no model:', err.message);

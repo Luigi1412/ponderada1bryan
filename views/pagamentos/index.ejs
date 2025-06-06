@@ -1,100 +1,140 @@
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-  <h1 class="h2"><%= title %></h1>
+  <h1 class="h2">Pagamentos</h1>
   <div class="btn-toolbar mb-2 mb-md-0">
-    <div class="btn-group me-2">
-      <a href="/pagamentos/novo" class="btn btn-sm btn-outline-secondary">Novo Pagamento</a>
+    <a href="/pagamentos/novo" class="btn btn-primary">
+      <i class="fas fa-plus"></i> Novo Pagamento
+    </a>
+  </div>
+</div>
+<p>Listagem e filtro de pagamentos realizados.</p>
+
+<!-- Card Principal -->
+<div class="card shadow-sm">
+  <div class="card-header bg-light d-flex justify-content-between align-items-center">
+    <h6 class="mb-0">
+      <i class="fas fa-list-ul me-2"></i>Listagem de Pagamentos
+    </h6>
+    <!-- Filtros -->
+    <div class="btn-group btn-group-sm" role="group" aria-label="Filtro de Status">
+      <button type="button" class="btn btn-outline-primary active" data-status="">Todos</button>
+      <button type="button" class="btn btn-outline-warning" data-status="Pendente">Pendente</button>
+      <button type="button" class="btn btn-outline-success" data-status="Concluído">Concluído</button>
+      <button type="button" class="btn btn-outline-danger" data-status="Cancelado">Cancelado</button>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover table-sm">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Reserva</th>
+            <th scope="col">Cliente</th>
+            <th scope="col">Valor</th>
+            <th scope="col">Método</th>
+            <th scope="col">Status</th>
+            <th scope="col">Data</th>
+            <th scope="col">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="pagamentos-tbody">
+          <!-- Estado inicial de carregamento -->
+          <tr>
+            <td colspan="8" class="text-center p-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Carregando...</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
-<p><%= description %></p>
-
-<div class="table-responsive">
-  <table class="table table-striped table-sm">
-    <thead>
-      <tr>
-        <th scope="col">ID</th>
-        <th scope="col">Reserva ID</th>
-        <th scope="col">Cliente</th>
-        <th scope="col">Valor</th>
-        <th scope="col">Método</th>
-        <th scope="col">Status</th>
-        <th scope="col">Data</th>
-        <th scope="col">Ações</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% if (locals.pagamentos && pagamentos.length > 0) { %>
-        <% pagamentos.forEach(pagamento => { %>
-          <tr id="pagamento-<%= pagamento.id %>">
-            <td><%= pagamento.id %></td>
-            <td><%= pagamento.reserva_id %></td>
-            <td><%= pagamento.usuario_nome || 'N/A' %></td>
-            <td>R$ <%= parseFloat(pagamento.valor).toFixed(2) %></td>
-            <td><%= pagamento.metodo %></td>
-            <td><%= pagamento.status %></td>
-            <td><%= new Date(pagamento.data_pagamento).toLocaleDateString('pt-BR') %></td>
-            <td>
-              <a href="/pagamentos/editar/<%= pagamento.id %>" class="btn btn-sm btn-primary">Editar</a>
-              <button onclick="deleteItem('<%= pagamento.id %>', 'pagamentos')" class="btn btn-sm btn-danger">Excluir</button>
-            </td>
-          </tr>
-        <% }) %>
-      <% } else { %>
-        <tr>
-          <td colspan="8" class="text-center">Nenhum pagamento encontrado.</td>
-        </tr>
-      <% } %>
-    </tbody>
-  </table>
-</div>
 
 <script>
-async function carregarPagamentos() {
-  const res = await fetch('/pagamentos/api');
-  const pagamentos = await res.json();
-  const lista = document.getElementById('lista-pagamentos');
-  lista.innerHTML = '';
-  pagamentos.forEach(pagamento => {
-    const li = document.createElement('li');
-    li.className = "flex justify-between items-center bg-gray-100 rounded px-4 py-2";
-    li.innerHTML = `
-      <span class="text-gray-700">R$ ${pagamento.valor} - ${pagamento.metodo} (Usuário: ${pagamento.usuario_id})</span>
-      <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition" onclick="deletarPagamento(${pagamento.id})">
-        <i class="fas fa-trash"></i> Excluir
-      </button>
-    `;
-    lista.appendChild(li);
-  });
-}
+document.addEventListener('DOMContentLoaded', function() {
+  const tbody = document.getElementById('pagamentos-tbody');
+  const filterButtons = document.querySelectorAll('.btn-group[aria-label="Filtro de Status"] button');
+  const loadingRow = `<tr><td colspan="8" class="text-center p-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div></td></tr>`;
+  let currentStatus = ''; // Filtro inicial: todos
 
-async function criarPagamento() {
-  const valor = document.getElementById('novo-valor').value;
-  const metodo = document.getElementById('novo-metodo').value;
-  const usuario_id = document.getElementById('novo-usuario').value;
-  if (!valor || !metodo || !usuario_id) {
-    showToast('Preencha todos os campos', 'error');
-    return;
+  // Função para buscar e renderizar os pagamentos
+  async function fetchAndRenderPagamentos(status = '') {
+    tbody.innerHTML = loadingRow;
+    
+    try {
+      const url = status ? `/api/pagamentos/api?status=${status}` : '/api/pagamentos/api';
+      const response = await fetch(url);
+      
+      if (!response.ok) throw new Error(`Erro na rede: ${response.statusText}`);
+
+      const pagamentos = await response.json();
+      renderTable(pagamentos);
+
+    } catch (error) {
+      console.error('Erro ao buscar pagamentos:', error);
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger p-4"><i class="fas fa-exclamation-triangle me-2"></i>Erro ao carregar pagamentos. Tente novamente.</td></tr>`;
+    }
   }
-  const btn = document.querySelector('button[onclick="criarPagamento()"]');
-  btn.disabled = true;
-  await fetch('/pagamentos/api', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ valor, metodo, usuario_id })
+
+  // Função para renderizar a tabela
+  function renderTable(pagamentos) {
+    tbody.innerHTML = ''; // Limpa a tabela
+    
+    if (!pagamentos || pagamentos.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted p-4"><i class="fas fa-info-circle me-2"></i>Nenhum pagamento encontrado.</td></tr>';
+      return;
+    }
+
+    pagamentos.forEach(pagamento => {
+      const valorFormatado = `R$ ${parseFloat(pagamento.valor || 0).toFixed(2)}`;
+      const dataFormatada = new Date(pagamento.data_pagamento).toLocaleDateString('pt-BR');
+      
+      const tr = document.createElement('tr');
+      tr.id = `item-${pagamento.id}`;
+      tr.innerHTML = `
+        <td>${pagamento.id}</td>
+        <td>#${pagamento.reserva_id}</td>
+        <td>${pagamento.user_nome || 'N/A'}</td>
+        <td>${valorFormatado}</td>
+        <td>${pagamento.metodo}</td>
+        <td><span class="badge bg-${getStatusColor(pagamento.status)}">${pagamento.status}</span></td>
+        <td>${dataFormatada}</td>
+        <td>
+          <a href="/pagamentos/editar/${pagamento.id}" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i> Editar</a>
+          <button onclick="deleteItem('${pagamento.id}', '/api/pagamentos/api')" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i> Excluir</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+  
+  // Função para retornar a cor do badge com base no status
+  function getStatusColor(status) {
+    switch (status) {
+      case 'Concluído': return 'success';
+      case 'Pendente': return 'warning';
+      case 'Cancelado': return 'danger';
+      default: return 'secondary';
+    }
+  }
+
+  // Event listeners para os botões de filtro
+  filterButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      // Remove a classe 'active' de todos os botões do grupo
+      filterButtons.forEach(btn => btn.classList.remove('active'));
+      
+      // Adiciona a classe 'active' apenas ao botão clicado
+      this.classList.add('active');
+      
+      currentStatus = this.getAttribute('data-status');
+      fetchAndRenderPagamentos(currentStatus);
+    });
   });
-  btn.disabled = false;
-  document.getElementById('novo-valor').value = '';
-  document.getElementById('novo-metodo').value = '';
-  document.getElementById('novo-usuario').value = '';
-  showToast('Pagamento criado com sucesso!');
-  carregarPagamentos();
-}
 
-async function deletarPagamento(id) {
-  await fetch('/pagamentos/api/' + id, { method: 'DELETE' });
-  showToast('Pagamento excluído com sucesso!');
-  carregarPagamentos();
-}
-
-window.onload = carregarPagamentos;
+  // Carga inicial
+  fetchAndRenderPagamentos();
+});
 </script>

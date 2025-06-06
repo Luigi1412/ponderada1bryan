@@ -3,14 +3,14 @@ const RoomModel = require('../models/RoomModel');
 // Cria um novo quarto
 exports.criar = async (req, res) => {
   try {
-    const { numero, descricao, capacidade, categoria_id } = req.body;
-    if (!numero) {
-      return res.status(400).json({ error: 'Número do quarto é obrigatório.' });
+    const { numero_quarto, descricao, preco_por_noite, status, categoria_quarto_id } = req.body;
+    if (!numero_quarto || !preco_por_noite || !status || !categoria_quarto_id) {
+      return res.status(400).json({ message: 'Todos os campos obrigatórios devem ser preenchidos.' });
     }
-    const novoRoom = await RoomModel.create({ numero, descricao, capacidade, categoria_id });
+    const novoRoom = await RoomModel.create({ numero_quarto, descricao, preco_por_noite, status, categoria_quarto_id });
     res.status(201).json(novoRoom);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -38,12 +38,12 @@ exports.obter = async (req, res) => {
 // Atualiza quarto
 exports.atualizar = async (req, res) => {
   try {
-    const { numero, descricao, capacidade, categoria_id } = req.body;
-    const roomAtualizado = await RoomModel.update(req.params.id, { numero, descricao, capacidade, categoria_id });
-    if (!roomAtualizado) return res.status(404).json({ error: 'Quarto não encontrado.' });
+    const { numero_quarto, descricao, preco_por_noite, status, categoria_quarto_id } = req.body;
+    const roomAtualizado = await RoomModel.update(req.params.id, { numero_quarto, descricao, preco_por_noite, status, categoria_quarto_id });
+    if (!roomAtualizado) return res.status(404).json({ message: 'Quarto não encontrado.' });
     res.status(200).json(roomAtualizado);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 

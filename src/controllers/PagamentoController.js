@@ -36,6 +36,17 @@ exports.formPage = async (req, res) => {
 
 // ==================== MÉTODOS DE API ====================
 
+// Lista todos os pagamentos com filtro opcional
+exports.apiListar = async (req, res) => {
+  try {
+    const { status } = req.query; // Pega o status da query string
+    const pagamentos = await PagamentoModel.getAll({ status });
+    res.status(200).json(pagamentos);
+  } catch (err) {
+    res.status(500).json({ error: 'Erro ao buscar pagamentos: ' + err.message });
+  }
+};
+
 // Cria um novo pagamento
 exports.apiCriar = async (req, res) => {
   try {

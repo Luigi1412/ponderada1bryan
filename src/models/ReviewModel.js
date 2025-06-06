@@ -27,7 +27,7 @@ const ReviewModel = {
         a.comentario,
         a.data_avaliacao,
         u.nome as usuario_nome,
-        r.numero as quarto_numero
+        r.numero_quarto as quarto_numero
       FROM avaliacoes a
       LEFT JOIN users u ON a.usuario_id = u.id
       LEFT JOIN rooms r ON a.room_id = r.id
@@ -51,7 +51,7 @@ const ReviewModel = {
         a.comentario,
         a.data_avaliacao,
         u.nome as usuario_nome,
-        r.numero as quarto_numero
+        r.numero_quarto as quarto_numero
       FROM avaliacoes a
       LEFT JOIN users u ON a.usuario_id = u.id
       LEFT JOIN rooms r ON a.room_id = r.id

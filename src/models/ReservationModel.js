@@ -6,10 +6,11 @@ const ReservationModel = {
     const query = `
       SELECT 
         r.id,
+        r.user_id,
         r.data_checkin,
         r.data_checkout,
         u.nome as usuario_nome,
-        rm.numero as quarto_numero
+        rm.numero_quarto as quarto_numero
       FROM reservations r
       JOIN users u ON r.user_id = u.id
       JOIN rooms rm ON r.room_id = rm.id

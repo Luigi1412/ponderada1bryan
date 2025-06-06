@@ -3,7 +3,7 @@
 </div>
 <p><%= description %></p>
 
-<form action="<%= pagamento ? '/pagamentos/api/' + pagamento.id : '/pagamentos/api' %>" method="POST" id="pagamento-form" class="needs-validation" novalidate>
+<form action="<%= pagamento ? '/api/pagamentos/' + pagamento.id : '/api/pagamentos' %>" method="POST" id="pagamento-form" class="needs-validation" novalidate>
     <div class="card p-3">
         <h5 class="card-title mb-3">Detalhes do Pagamento</h5>
         <div class="row g-3">
@@ -54,5 +54,81 @@
 </form>
 
 <script>
-// Lógica para carregar reservas e submeter o formulário via fetch
+document.addEventListener('DOMContentLoaded', function() {
+    const isEditing = <%- !!pagamento %>;
+    
+    async function populateReservations() {
+        const select = document.getElementById('reserva_id');
+        try {
+            const response = await fetch('/api/reservations');
+            if (!response.ok) throw new Error('Erro ao carregar reservas');
+            
+            const reservations = await response.json();
+            
+            select.innerHTML = '<option value="">Selecione uma reserva...</option>';
+            reservations.forEach(res => {
+                const option = document.createElement('option');
+                option.value = res.id;
+                option.textContent = `Reserva #${res.id} - Usuário ID: ${res.user_id}`;
+                select.appendChild(option);
+            });
+
+            // Se estiver editando, seleciona a reserva correta
+            if (isEditing && locals.pagamento) {
+                select.value = locals.pagamento.reserva_id;
+            }
+        } catch (error) {
+            select.innerHTML = '<option value="">Erro ao carregar reservas</option>';
+            console.error(error);
+        }
+    }
+
+    populateReservations();
+
+    const form = document.getElementById('pagamento-form');
+    form.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        console.log('Form submission intercepted.');
+
+        if (!form.checkValidity()) {
+            console.log('Form is invalid. Adding "was-validated" class.');
+            event.stopPropagation();
+            form.classList.add('was-validated');
+            return;
+        }
+        console.log('Form is valid.');
+
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        const actionUrl = form.getAttribute('action');
+        const method = form.getAttribute('method');
+        
+        console.log('Sending data to:', actionUrl, 'with method:', method);
+        console.log('Payload:', data);
+
+        try {
+            const response = await fetch(actionUrl, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+            
+            console.log('Response status:', response.status);
+
+            if (response.ok) {
+                console.log('Response OK, redirecting...');
+                window.location.href = '/pagamentos';
+            } else {
+                const result = await response.json();
+                console.error('Server error:', result);
+                alert('Erro ao salvar pagamento: ' + (result.error || 'Erro desconhecido'));
+            }
+        } catch (error) {
+            console.error('Fetch error:', error);
+            alert('Erro de conexão ao salvar o pagamento.');
+        }
+    });
+});
 </script>

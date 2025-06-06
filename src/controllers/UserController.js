@@ -3,11 +3,11 @@ const UserModel = require('../models/UserModel');
 // Cria um novo usuário
 exports.criar = async (req, res) => {
   try {
-    const { nome, email } = req.body;
-    if (!nome || !email) {
-      return res.status(400).json({ error: 'Nome e email são obrigatórios.' });
+    const { nome, email, senha } = req.body;
+    if (!nome || !email || !senha) {
+      return res.status(400).json({ error: 'Nome, email e senha são obrigatórios.' });
     }
-    const novoUsuario = await UserModel.create({ nome, email });
+    const novoUsuario = await UserModel.create({ nome, email, senha });
     res.status(201).json(novoUsuario);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -38,8 +38,8 @@ exports.obter = async (req, res) => {
 // Atualiza um usuário
 exports.atualizar = async (req, res) => {
   try {
-    const { nome, email } = req.body;
-    const usuarioAtualizado = await UserModel.update(req.params.id, { nome, email });
+    const { nome, email, senha } = req.body;
+    const usuarioAtualizado = await UserModel.update(req.params.id, { nome, email, senha });
     if (!usuarioAtualizado) return res.status(404).json({ error: 'Usuário não encontrado.' });
     res.status(200).json(usuarioAtualizado);
   } catch (err) {
@@ -71,6 +71,10 @@ exports.apiListar = async (req, res) => {
 
 exports.apiCriar = async (req, res) => {
   try {
+    const { nome, email, senha } = req.body;
+    if (!nome || !email || !senha) {
+      return res.status(400).json({ error: 'Nome, email e senha são obrigatórios para criar um usuário via API.' });
+    }
     const usuario = await UserModel.create(req.body);
     res.status(201).json(usuario);
   } catch (err) {

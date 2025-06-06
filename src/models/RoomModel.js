@@ -3,13 +3,13 @@ const pool = require('../config/database');
 // Model para gerenciar os quartos (Room)
 const RoomModel = {
   // Cria um novo quarto
-  async create({ numero, descricao, capacidade, categoria_id }) {
+  async create({ numero_quarto, descricao, preco_por_noite, status, categoria_quarto_id }) {
     const query = `
-      INSERT INTO rooms (numero, descricao, capacidade, categoria_id)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO rooms (numero_quarto, descricao, preco_por_noite, status, categoria_id)
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING *;
     `;
-    const values = [numero, descricao, capacidade, categoria_id];
+    const values = [numero_quarto, descricao, preco_por_noite, status, categoria_quarto_id];
     try {
       const result = await pool.query(query, values);
       return result.rows[0]; // Retorna o quarto criado
@@ -23,11 +23,15 @@ const RoomModel = {
   async getAll() {
     const query = `
       SELECT 
-        r.*,
+        r.id,
+        r.numero_quarto,
+        r.descricao,
+        r.preco_por_noite,
+        r.status,
         cq.nome as categoria_quarto_nome
       FROM rooms r
       LEFT JOIN categorias_quartos cq ON r.categoria_id = cq.id
-      ORDER BY r.numero ASC;
+      ORDER BY r.numero_quarto ASC;
     `;
     try {
       const result = await pool.query(query);
@@ -42,7 +46,12 @@ const RoomModel = {
   async getById(id) {
     const query = `
       SELECT 
-        r.*,
+        r.id,
+        r.numero_quarto,
+        r.descricao,
+        r.preco_por_noite,
+        r.status,
+        r.categoria_id,
         cq.nome as categoria_quarto_nome
       FROM rooms r
       LEFT JOIN categorias_quartos cq ON r.categoria_id = cq.id
@@ -58,13 +67,13 @@ const RoomModel = {
   },
 
   // Atualiza um quarto existente
-  async update(id, { numero, descricao, capacidade, categoria_id }) {
+  async update(id, { numero_quarto, descricao, preco_por_noite, status, categoria_quarto_id }) {
     const query = `
       UPDATE rooms 
-      SET numero = $1, descricao = $2, capacidade = $3, categoria_id = $4
-      WHERE id = $5 RETURNING *;
+      SET numero_quarto = $1, descricao = $2, preco_por_noite = $3, status = $4, categoria_id = $5
+      WHERE id = $6 RETURNING *;
     `;
-    const values = [numero, descricao, capacidade, categoria_id, id];
+    const values = [numero_quarto, descricao, preco_por_noite, status, categoria_quarto_id, id];
     try {
       const result = await pool.query(query, values);
       // Nota: este retorno não inclui o nome da categoria. Se necessário, buscar novamente após o update.

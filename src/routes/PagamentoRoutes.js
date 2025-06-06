@@ -14,6 +14,9 @@ router.get('/editar/:id', PagamentoController.formPage);
 
 
 // ==================== ROTAS DA API (DADOS) ====================
+// Rota para listar todos os pagamentos (usado pela view dinâmica)
+router.get('/api', PagamentoController.apiListar);
+
 // Rota para criar um novo pagamento (usado pelo form)
 router.post('/api', PagamentoController.apiCriar);
 

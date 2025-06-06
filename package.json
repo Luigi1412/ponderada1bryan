@@ -4,10 +4,11 @@
   "description": "API REST para gerenciamento de tarefas com Node.js, Express e PostgreSQL",
   "main": "src/server.js",
   "scripts": {
+    "test": "jest",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "init-db": "node -e \"require('fs').readFileSync('src/database/migrations/init.sql', 'utf8').split(';').forEach(query => { if(query.trim()) console.log(query + ';'); })\" | psql -U postgres -d task_manager",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "seed": "node src/database/seed.js",
+    "init-db": "node src/database/init.js"
   },
   "repository": {
     "type": "git",
