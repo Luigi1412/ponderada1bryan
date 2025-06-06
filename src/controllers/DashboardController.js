@@ -1,20 +1,18 @@
-const TarefaModel = require('../models/TarefaModel');
-const ProjetoModel = require('../models/ProjetoModel');
-const UsuarioModel = require('../models/UsuarioModel');
+const TaskModel = require('../models/TaskModel');
+const UserModel = require('../models/UserModel');
 const RoomModel = require('../models/RoomModel');
 
 exports.index = async (req, res) => {
     try {
-        const [tarefas, projetos, usuarios, rooms] = await Promise.all([
-            TarefaModel.getAll(),
-            ProjetoModel.getAll(),
-            UsuarioModel.getAll(),
+        const [tarefas, usuarios, rooms] = await Promise.all([
+            TaskModel.getAll(),
+            UserModel.getAll(),
             RoomModel.getAll()
         ]);
 
         const counts = {
             tarefas: tarefas.length,
-            projetos: projetos.length,
+            projetos: 0,
             usuarios: usuarios.length,
             rooms: rooms.length
         };

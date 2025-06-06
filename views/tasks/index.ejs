@@ -62,10 +62,10 @@
 <template id="task-template">
     <div class="task-card bg-white rounded-lg shadow p-6 fade-in flex flex-col justify-between">
         <div>
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-medium text-gray-900 task-title"></h3>
-                <span class="task-status px-3 py-1 rounded-full text-xs font-medium"></span>
-            </div>
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900 task-title"></h3>
+            <span class="task-status px-3 py-1 rounded-full text-xs font-medium"></span>
+        </div>
             <div class="text-sm text-gray-500 space-y-2 mb-4">
                 <p>
                     <i class="fas fa-project-diagram text-gray-400 mr-2"></i>
@@ -141,7 +141,7 @@
             const container = document.getElementById('tasks-container');
             const template = document.getElementById('task-template');
             container.innerHTML = '';
-
+            
             if (tasks.length === 0) {
                 container.innerHTML = `<div class="col-span-full text-center py-12"><p class="text-gray-500">Nenhuma tarefa encontrada com os filtros atuais.</p></div>`;
                 return;

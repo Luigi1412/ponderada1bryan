@@ -16,7 +16,7 @@
             Nova Avaliação
         </a>
     </div>
-</div>
+  </div>
 
 <!-- Evaluations Grid -->
 <div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-3" id="evaluations-container">
@@ -67,8 +67,8 @@
 
             if (evaluations.length === 0) {
                 container.innerHTML = `<div class="col-span-full text-center py-12"><p class="text-gray-500">Nenhuma avaliação encontrada.</p></div>`;
-                return;
-            }
+    return;
+  }
 
             evaluations.forEach(evaluation => {
                 const clone = template.content.cloneNode(true);
@@ -82,11 +82,11 @@
                     if (confirm('Tem certeza que deseja excluir esta avaliação?')) {
                         try {
                             await fetch(`/api/avaliacoes/${evaluation.id}`, { method: 'DELETE' });
-                            showToast('Avaliação excluída com sucesso!');
+  showToast('Avaliação excluída com sucesso!');
                             loadEvaluations();
                         } catch (error) {
                             showToast('Erro ao excluir avaliação', 'error');
-                        }
+}
                     }
                 });
                 container.appendChild(clone);

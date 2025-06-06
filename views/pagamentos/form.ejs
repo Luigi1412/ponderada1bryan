@@ -1,10 +1,63 @@
 <% layout('layout') %>
-<h1><%= pagamento ? 'Editar Pagamento' : 'Novo Pagamento' %></h1>
-<form action="<%= pagamento ? '/pagamentos/' + pagamento.id + '?_method=PUT' : '/pagamentos' %>" method="POST">
-  <label>Reserva: <input type="number" name="reserva_id" value="<%= pagamento ? pagamento.reserva_id : '' %>" required></label><br>
-  <label>Valor: <input type="number" step="0.01" name="valor" value="<%= pagamento ? pagamento.valor : '' %>" required></label><br>
-  <label>Data: <input type="date" name="data_pagamento" value="<%= pagamento ? pagamento.data_pagamento : '' %>"></label><br>
-  <label>Método: <input type="text" name="metodo" value="<%= pagamento ? pagamento.metodo : '' %>"></label><br>
-  <label>Status: <input type="text" name="status" value="<%= pagamento ? pagamento.status : '' %>"></label><br>
-  <button type="submit"><%= pagamento ? 'Atualizar' : 'Criar' %></button>
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><%= pagamento ? 'Editar Pagamento' : 'Novo Pagamento' %></h1>
+</div>
+<p><%= description %></p>
+
+<form action="<%= pagamento ? '/pagamentos/' + pagamento.id + '?_method=PUT' : '/pagamentos' %>" method="POST" class="needs-validation" novalidate>
+    <div class="row g-3">
+        <div class="col-12">
+            <label for="reserva_id" class="form-label">Reserva</label>
+            <select class="form-select" id="reserva_id" name="reserva_id" required>
+                <option value="">Selecione uma reserva...</option>
+                <% if (locals.reservas && reservas.length > 0) { %>
+                    <% reservas.forEach(reserva => { %>
+                        <option value="<%= reserva.id %>" <%= (locals.pagamento && pagamento.reserva_id == reserva.id) ? 'selected' : '' %>>
+                            Reserva #<%= reserva.id %> - <%= reserva.usuario_nome %> (Quarto <%= reserva.quarto_numero %>)
+                        </option>
+                    <% }) %>
+                <% } %>
+            </select>
+            <div class="invalid-feedback">
+                Por favor, selecione uma reserva.
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <label for="valor" class="form-label">Valor</label>
+            <div class="input-group">
+                <span class="input-group-text">R$</span>
+                <input type="number" step="0.01" class="form-control" id="valor" name="valor" placeholder="100.00" value="<%= locals.pagamento ? parseFloat(pagamento.valor).toFixed(2) : '' %>" required>
+            </div>
+            <div class="invalid-feedback">
+                O valor é obrigatório.
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <label for="metodo" class="form-label">Método de Pagamento</label>
+            <input type="text" class="form-control" id="metodo" name="metodo" placeholder="Ex: Cartão de Crédito" value="<%= locals.pagamento ? pagamento.metodo : '' %>" required>
+            <div class="invalid-feedback">
+                O método de pagamento é obrigatório.
+            </div>
+        </div>
+        
+        <div class="col-sm-6">
+            <label for="status" class="form-label">Status</label>
+            <select class="form-select" id="status" name="status" required>
+                <option value="Pendente" <%= (locals.pagamento && pagamento.status === 'Pendente') ? 'selected' : '' %>>Pendente</option>
+                <option value="Concluído" <%= (locals.pagamento && pagamento.status === 'Concluído') ? 'selected' : '' %>>Concluído</option>
+                <option value="Cancelado" <%= (locals.pagamento && pagamento.status === 'Cancelado') ? 'selected' : '' %>>Cancelado</option>
+            </select>
+            <div class="invalid-feedback">
+                Por favor, selecione um status.
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-4">
+
+    <button class="w-100 btn btn-primary btn-lg" type="submit">
+        <%= locals.pagamento ? 'Atualizar Pagamento' : 'Salvar Pagamento' %>
+    </button>
 </form>

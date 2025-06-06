@@ -1,13 +1,13 @@
-const TarefaModel = require('../models/TarefaModel');
+const TaskModel = require('../models/TaskModel');
 
 // Cria uma nova tarefa
 exports.criarTarefa = async (req, res) => {
   try {
-    const { nome, descricao, status, projeto_id, responsavel_id, data_conclusao_prevista } = req.body;
+    const { nome, descricao, status } = req.body;
     if (!nome) {
       return res.status(400).json({ error: 'O campo nome é obrigatório.' });
     }
-    const novaTarefa = await TarefaModel.create({ nome, descricao, status, projeto_id, responsavel_id, data_conclusao_prevista });
+    const novaTarefa = await TaskModel.create({ nome, descricao, status });
     res.status(201).json(novaTarefa);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -18,10 +18,10 @@ exports.criarTarefa = async (req, res) => {
 exports.listarTarefas = async (req, res) => {
   try {
     // Extrai os filtros da query string
-    const { search, status, projeto_id, responsavel_id } = req.query;
-    const filtros = { search, status, projeto_id, responsavel_id };
+    const { search, status } = req.query;
+    const filtros = { search, status };
 
-    const tarefas = await TarefaModel.getAll(filtros);
+    const tarefas = await TaskModel.getAll(filtros);
     res.status(200).json(tarefas);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -31,7 +31,7 @@ exports.listarTarefas = async (req, res) => {
 // Obtém uma tarefa específica
 exports.obterTarefa = async (req, res) => {
   try {
-    const tarefa = await TarefaModel.getById(req.params.id);
+    const tarefa = await TaskModel.getById(req.params.id);
     if (!tarefa) return res.status(404).json({ error: 'Tarefa não encontrada.' });
     res.status(200).json(tarefa);
   } catch (err) {
@@ -42,8 +42,8 @@ exports.obterTarefa = async (req, res) => {
 // Edita uma tarefa
 exports.editarTarefa = async (req, res) => {
   try {
-    const { nome, descricao, status, projeto_id, responsavel_id, data_conclusao_prevista } = req.body;
-    const tarefaAtualizada = await TarefaModel.update(req.params.id, { nome, descricao, status, projeto_id, responsavel_id, data_conclusao_prevista });
+    const { nome, descricao, status } = req.body;
+    const tarefaAtualizada = await TaskModel.update(req.params.id, { nome, descricao, status });
     if (!tarefaAtualizada) return res.status(404).json({ error: 'Tarefa não encontrada.' });
     res.status(200).json(tarefaAtualizada);
   } catch (err) {
@@ -54,7 +54,7 @@ exports.editarTarefa = async (req, res) => {
 // Exclui uma tarefa
 exports.excluirTarefa = async (req, res) => {
   try {
-    const tarefaExcluida = await TarefaModel.delete(req.params.id);
+    const tarefaExcluida = await TaskModel.delete(req.params.id);
     if (!tarefaExcluida) return res.status(404).json({ error: 'Tarefa não encontrada.' });
     res.status(200).json({ message: 'Tarefa excluída com sucesso.' });
   } catch (err) {

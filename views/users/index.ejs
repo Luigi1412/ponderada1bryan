@@ -16,7 +16,7 @@
             Novo Usuário
         </a>
     </div>
-</div>
+  </div>
 
 <!-- Users Table -->
 <div class="bg-white shadow rounded-lg overflow-hidden">
@@ -70,8 +70,8 @@
             
             if (users.length === 0) {
                 container.innerHTML = `<tr><td colspan="4" class="text-center py-12 text-gray-500">Nenhum usuário encontrado.</td></tr>`;
-                return;
-            }
+    return;
+  }
 
             users.forEach(user => {
                 const clone = template.content.cloneNode(true);
@@ -92,7 +92,7 @@
                             loadUsers();
                         } catch (error) {
                             showToast('Erro ao excluir usuário', 'error');
-                        }
+}
                     }
                 });
 

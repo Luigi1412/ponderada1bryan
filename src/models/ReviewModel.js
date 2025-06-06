@@ -1,11 +1,11 @@
 const pool = require('../config/database');
 
-const AvaliacaoModel = {
+const ReviewModel = {
   // Cria uma nova avaliação
   async create({ nota, comentario, usuario_id, room_id }) {
     const query = `
-      INSERT INTO Avaliacao (nota, comentario, usuario_id, room_id, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      INSERT INTO avaliacoes (nota, comentario, usuario_id, room_id, data_avaliacao)
+      VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
       RETURNING *;
     `;
     const values = [nota, comentario, usuario_id, room_id];
@@ -24,11 +24,11 @@ const AvaliacaoModel = {
       SELECT 
         a.*,
         u.nome as usuario_nome,
-        r.numero_quarto as quarto_numero
-      FROM Avaliacao a
-      LEFT JOIN Usuario u ON a.usuario_id = u.id
-      LEFT JOIN Room r ON a.room_id = r.id
-      ORDER BY a.created_at DESC;
+        r.numero as quarto_numero
+      FROM avaliacoes a
+      LEFT JOIN users u ON a.usuario_id = u.id
+      LEFT JOIN rooms r ON a.room_id = r.id
+      ORDER BY a.data_avaliacao DESC;
     `;
     try {
       const result = await pool.query(query);
@@ -45,10 +45,10 @@ const AvaliacaoModel = {
       SELECT 
         a.*,
         u.nome as usuario_nome,
-        r.numero_quarto as quarto_numero
-      FROM Avaliacao a
-      LEFT JOIN Usuario u ON a.usuario_id = u.id
-      LEFT JOIN Room r ON a.room_id = r.id
+        r.numero as quarto_numero
+      FROM avaliacoes a
+      LEFT JOIN users u ON a.usuario_id = u.id
+      LEFT JOIN rooms r ON a.room_id = r.id
       WHERE a.id = $1;
     `;
     try {
@@ -63,8 +63,8 @@ const AvaliacaoModel = {
   // Atualiza uma avaliação
   async update(id, { nota, comentario }) {
     const query = `
-      UPDATE Avaliacao 
-      SET nota = $1, comentario = $2, updated_at = CURRENT_TIMESTAMP
+      UPDATE avaliacoes 
+      SET nota = $1, comentario = $2
       WHERE id = $3 RETURNING *;
     `;
     const values = [nota, comentario, id];
@@ -79,7 +79,7 @@ const AvaliacaoModel = {
 
   // Exclui uma avaliação
   async delete(id) {
-    const query = 'DELETE FROM Avaliacao WHERE id = $1 RETURNING *;';
+    const query = 'DELETE FROM avaliacoes WHERE id = $1 RETURNING *;';
     try {
       const result = await pool.query(query, [id]);
       return result.rows[0];
@@ -90,4 +90,4 @@ const AvaliacaoModel = {
   }
 };
 
-module.exports = AvaliacaoModel;
+module.exports = ReviewModel;

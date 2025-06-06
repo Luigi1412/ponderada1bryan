@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const UserController = require('../controllers/UserController');
+const UserController = require('../controllers/userController');
 
 // Rotas principais para Usuários
 router.post('/', UserController.criar);

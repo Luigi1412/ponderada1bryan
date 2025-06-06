@@ -16,7 +16,7 @@
             Nova Categoria
         </a>
     </div>
-</div>
+  </div>
 
 <!-- Categories Table -->
 <div class="bg-white shadow rounded-lg overflow-x-auto">
@@ -59,8 +59,8 @@
             
             if (categories.length === 0) {
                 container.innerHTML = `<tr><td colspan="3" class="text-center py-12 text-gray-500">Nenhuma categoria encontrada.</td></tr>`;
-                return;
-            }
+    return;
+  }
 
             categories.forEach(category => {
                 const clone = template.content.cloneNode(true);
@@ -84,7 +84,7 @@
             });
         } catch (error) {
             showToast('Erro ao carregar categorias', 'error');
-        }
+}
     }
 
     document.addEventListener('DOMContentLoaded', loadCategories);

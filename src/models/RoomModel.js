@@ -3,13 +3,13 @@ const pool = require('../config/database');
 // Model para gerenciar os quartos (Room)
 const RoomModel = {
   // Cria um novo quarto
-  async create({ numero_quarto, descricao, preco_por_noite, status, categoria_quarto_id }) {
+  async create({ numero, descricao, capacidade, categoria_id }) {
     const query = `
-      INSERT INTO Room (numero_quarto, descricao, preco_por_noite, status, categoria_quarto_id, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      INSERT INTO rooms (numero, descricao, capacidade, categoria_id)
+      VALUES ($1, $2, $3, $4)
       RETURNING *;
     `;
-    const values = [numero_quarto, descricao, preco_por_noite, status || 'Disponível', categoria_quarto_id];
+    const values = [numero, descricao, capacidade, categoria_id];
     try {
       const result = await pool.query(query, values);
       return result.rows[0]; // Retorna o quarto criado
@@ -25,9 +25,9 @@ const RoomModel = {
       SELECT 
         r.*,
         cq.nome as categoria_quarto_nome
-      FROM Room r
-      LEFT JOIN CategoriaQuarto cq ON r.categoria_quarto_id = cq.id
-      ORDER BY r.numero_quarto ASC;
+      FROM rooms r
+      LEFT JOIN categorias_quartos cq ON r.categoria_id = cq.id
+      ORDER BY r.numero ASC;
     `;
     try {
       const result = await pool.query(query);
@@ -44,8 +44,8 @@ const RoomModel = {
       SELECT 
         r.*,
         cq.nome as categoria_quarto_nome
-      FROM Room r
-      LEFT JOIN CategoriaQuarto cq ON r.categoria_quarto_id = cq.id
+      FROM rooms r
+      LEFT JOIN categorias_quartos cq ON r.categoria_id = cq.id
       WHERE r.id = $1;
     `;
     try {
@@ -58,13 +58,13 @@ const RoomModel = {
   },
 
   // Atualiza um quarto existente
-  async update(id, { numero_quarto, descricao, preco_por_noite, status, categoria_quarto_id }) {
+  async update(id, { numero, descricao, capacidade, categoria_id }) {
     const query = `
-      UPDATE Room 
-      SET numero_quarto = $1, descricao = $2, preco_por_noite = $3, status = $4, categoria_quarto_id = $5, updated_at = CURRENT_TIMESTAMP
-      WHERE id = $6 RETURNING *;
+      UPDATE rooms 
+      SET numero = $1, descricao = $2, capacidade = $3, categoria_id = $4
+      WHERE id = $5 RETURNING *;
     `;
-    const values = [numero_quarto, descricao, preco_por_noite, status, categoria_quarto_id, id];
+    const values = [numero, descricao, capacidade, categoria_id, id];
     try {
       const result = await pool.query(query, values);
       // Nota: este retorno não inclui o nome da categoria. Se necessário, buscar novamente após o update.
@@ -77,7 +77,7 @@ const RoomModel = {
 
   // Exclui um quarto pelo ID
   async delete(id) {
-    const query = 'DELETE FROM Room WHERE id = $1 RETURNING *;';
+    const query = 'DELETE FROM rooms WHERE id = $1 RETURNING *;';
     try {
       const result = await pool.query(query, [id]);
       return result.rows[0]; // Retorna o quarto excluído ou undefined

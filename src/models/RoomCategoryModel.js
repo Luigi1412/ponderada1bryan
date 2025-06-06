@@ -1,11 +1,11 @@
 const pool = require('../config/database');
 
 // Model para gerenciar as categorias de quarto
-const CategoriaQuartoModel = {
+const RoomCategoryModel = {
   // Cria uma nova categoria de quarto
   async create({ nome, descricao }) {
     const query = `
-      INSERT INTO CategoriaQuarto (nome, descricao, created_at, updated_at)
+      INSERT INTO categorias_quartos (nome, descricao, created_at, updated_at)
       VALUES ($1, $2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
       RETURNING *;
     `;
@@ -21,7 +21,7 @@ const CategoriaQuartoModel = {
 
   // Busca todas as categorias de quarto
   async getAll() {
-    const query = 'SELECT * FROM CategoriaQuarto ORDER BY nome ASC;';
+    const query = 'SELECT * FROM categorias_quartos ORDER BY nome ASC;';
     try {
       const result = await pool.query(query);
       return result.rows; // Retorna lista de categorias
@@ -33,7 +33,7 @@ const CategoriaQuartoModel = {
 
   // Busca uma categoria de quarto pelo ID
   async getById(id) {
-    const query = 'SELECT * FROM CategoriaQuarto WHERE id = $1;';
+    const query = 'SELECT * FROM categorias_quartos WHERE id = $1;';
     try {
       const result = await pool.query(query, [id]);
       return result.rows[0]; // Retorna a categoria encontrada ou undefined
@@ -46,7 +46,7 @@ const CategoriaQuartoModel = {
   // Atualiza uma categoria de quarto existente
   async update(id, { nome, descricao }) {
     const query = `
-      UPDATE CategoriaQuarto 
+      UPDATE categorias_quartos 
       SET nome = $1, descricao = $2, updated_at = CURRENT_TIMESTAMP
       WHERE id = $3 RETURNING *;
     `;
@@ -62,7 +62,7 @@ const CategoriaQuartoModel = {
 
   // Exclui uma categoria de quarto pelo ID
   async delete(id) {
-    const query = 'DELETE FROM CategoriaQuarto WHERE id = $1 RETURNING *;';
+    const query = 'DELETE FROM categorias_quartos WHERE id = $1 RETURNING *;';
     try {
       const result = await pool.query(query, [id]);
       return result.rows[0]; // Retorna a categoria excluída ou undefined
@@ -73,4 +73,4 @@ const CategoriaQuartoModel = {
   }
 };
 
-module.exports = CategoriaQuartoModel; 
+module.exports = RoomCategoryModel; 

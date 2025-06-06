@@ -1,9 +1,89 @@
-class EnderecoModel {
-  static async create(data) { /* implementação do insert no banco */ }
-  static async update(id, data) { /* implementação do update no banco */ }
-  static async delete(id) { /* implementação do delete no banco */ }
-  static async findById(id) { /* implementação do select por id */ }
-  static async findAll() { /* implementação do select all */ }
-}
+const pool = require('../config/database');
+
+const EnderecoModel = {
+  // Cria um novo endereço
+  async create({ user_id, rua, numero, cidade, estado, cep }) {
+    const query = `
+      INSERT INTO enderecos (user_id, rua, numero, cidade, estado, cep)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *;
+    `;
+    const values = [user_id, rua, numero, cidade, estado, cep];
+    try {
+      const result = await pool.query(query, values);
+      return result.rows[0];
+    } catch (err) {
+      console.error('Erro ao criar endereço no model:', err.message);
+      throw err;
+    }
+  },
+
+  // Busca todos os endereços, incluindo o nome do usuário
+  async getAll() {
+    const query = `
+      SELECT 
+        e.*,
+        u.nome as usuario_nome
+      FROM enderecos e
+      LEFT JOIN users u ON e.user_id = u.id
+      ORDER BY u.nome, e.cidade;
+    `;
+    try {
+      const result = await pool.query(query);
+      return result.rows;
+    } catch (err) {
+      console.error('Erro ao buscar todos os endereços no model:', err.message);
+      throw err;
+    }
+  },
+
+  // Busca um endereço pelo ID
+  async getById(id) {
+    const query = `
+      SELECT 
+        e.*,
+        u.nome as usuario_nome
+      FROM enderecos e
+      LEFT JOIN users u ON e.user_id = u.id
+      WHERE e.id = $1;
+    `;
+    try {
+      const result = await pool.query(query, [id]);
+      return result.rows[0];
+    } catch (err) {
+      console.error('Erro ao buscar endereço por id no model:', err.message);
+      throw err;
+    }
+  },
+
+  // Atualiza um endereço
+  async update(id, { user_id, rua, numero, cidade, estado, cep }) {
+    const query = `
+      UPDATE enderecos 
+      SET user_id = $1, rua = $2, numero = $3, cidade = $4, estado = $5, cep = $6
+      WHERE id = $7 RETURNING *;
+    `;
+    const values = [user_id, rua, numero, cidade, estado, cep, id];
+    try {
+      const result = await pool.query(query, values);
+      return result.rows[0];
+    } catch (err) {
+      console.error('Erro ao atualizar endereço no model:', err.message);
+      throw err;
+    }
+  },
+
+  // Exclui um endereço
+  async delete(id) {
+    const query = 'DELETE FROM enderecos WHERE id = $1 RETURNING *;';
+    try {
+      const result = await pool.query(query, [id]);
+      return result.rows[0];
+    } catch (err) {
+      console.error('Erro ao excluir endereço no model:', err.message);
+      throw err;
+    }
+  }
+};
 
 module.exports = EnderecoModel;

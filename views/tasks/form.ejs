@@ -58,7 +58,7 @@
     const formTitle = document.getElementById('form-title');
     const taskId = window.location.pathname.split('/').pop();
     const isEditing = window.location.pathname.includes('editar-tarefa');
-    
+
     // Função para popular selects
     async function populateSelect(url, selectId, valueField, textField, defaultOption) {
         const select = document.getElementById(selectId);

@@ -1,4 +1,4 @@
-const UsuarioModel = require('../models/UsuarioModel');
+const UserModel = require('../models/UserModel');
 
 // Cria um novo usuário
 exports.criar = async (req, res) => {
@@ -7,7 +7,7 @@ exports.criar = async (req, res) => {
     if (!nome || !email) {
       return res.status(400).json({ error: 'Nome e email são obrigatórios.' });
     }
-    const novoUsuario = await UsuarioModel.create({ nome, email });
+    const novoUsuario = await UserModel.create({ nome, email });
     res.status(201).json(novoUsuario);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -17,7 +17,7 @@ exports.criar = async (req, res) => {
 // Lista todos os usuários
 exports.listar = async (req, res) => {
   try {
-    const usuarios = await UsuarioModel.getAll();
+    const usuarios = await UserModel.getAll();
     res.status(200).json(usuarios);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -27,7 +27,7 @@ exports.listar = async (req, res) => {
 // Obtém um usuário específico
 exports.obter = async (req, res) => {
   try {
-    const usuario = await UsuarioModel.getById(req.params.id);
+    const usuario = await UserModel.getById(req.params.id);
     if (!usuario) return res.status(404).json({ error: 'Usuário não encontrado.' });
     res.status(200).json(usuario);
   } catch (err) {
@@ -39,7 +39,7 @@ exports.obter = async (req, res) => {
 exports.atualizar = async (req, res) => {
   try {
     const { nome, email } = req.body;
-    const usuarioAtualizado = await UsuarioModel.update(req.params.id, { nome, email });
+    const usuarioAtualizado = await UserModel.update(req.params.id, { nome, email });
     if (!usuarioAtualizado) return res.status(404).json({ error: 'Usuário não encontrado.' });
     res.status(200).json(usuarioAtualizado);
   } catch (err) {
@@ -50,7 +50,7 @@ exports.atualizar = async (req, res) => {
 // Exclui um usuário
 exports.excluir = async (req, res) => {
   try {
-    const usuarioExcluido = await UsuarioModel.delete(req.params.id);
+    const usuarioExcluido = await UserModel.delete(req.params.id);
     if (!usuarioExcluido) return res.status(404).json({ error: 'Usuário não encontrado.' });
     res.status(200).json({ message: 'Usuário excluído com sucesso.' });
   } catch (err) {
@@ -62,7 +62,7 @@ exports.excluir = async (req, res) => {
 
 exports.apiListar = async (req, res) => {
   try {
-    const usuarios = await UsuarioModel.getAll();
+    const usuarios = await UserModel.getAll();
     res.json(usuarios);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -71,7 +71,7 @@ exports.apiListar = async (req, res) => {
 
 exports.apiCriar = async (req, res) => {
   try {
-    const usuario = await UsuarioModel.create(req.body);
+    const usuario = await UserModel.create(req.body);
     res.status(201).json(usuario);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -80,7 +80,7 @@ exports.apiCriar = async (req, res) => {
 
 exports.apiAtualizar = async (req, res) => {
   try {
-    const usuario = await UsuarioModel.update(req.params.id, req.body);
+    const usuario = await UserModel.update(req.params.id, req.body);
     res.json(usuario);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -89,7 +89,7 @@ exports.apiAtualizar = async (req, res) => {
 
 exports.apiDeletar = async (req, res) => {
   try {
-    await UsuarioModel.delete(req.params.id);
+    await UserModel.delete(req.params.id);
     res.json({ message: 'Usuário excluído' });
   } catch (err) {
     res.status(500).json({ error: err.message });

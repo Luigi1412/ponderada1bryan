@@ -1,11 +1,72 @@
 <% layout('layout') %>
-<h1><%= endereco ? 'Editar Endereço' : 'Novo Endereço' %></h1>
-<form action="<%= endereco ? '/enderecos/' + endereco.id + '?_method=PUT' : '/enderecos' %>" method="POST">
-  <label>Usuário: <input type="number" name="user_id" value="<%= endereco ? endereco.user_id : '' %>" required></label><br>
-  <label>Rua: <input type="text" name="rua" value="<%= endereco ? endereco.rua : '' %>" required></label><br>
-  <label>Número: <input type="text" name="numero" value="<%= endereco ? endereco.numero : '' %>" required></label><br>
-  <label>Cidade: <input type="text" name="cidade" value="<%= endereco ? endereco.cidade : '' %>" required></label><br>
-  <label>Estado: <input type="text" name="estado" value="<%= endereco ? endereco.estado : '' %>" required></label><br>
-  <label>CEP: <input type="text" name="cep" value="<%= endereco ? endereco.cep : '' %>" required></label><br>
-  <button type="submit"><%= endereco ? 'Atualizar' : 'Criar' %></button>
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><%= endereco ? 'Editar Endereço' : 'Novo Endereço' %></h1>
+</div>
+<p>Preencha os campos abaixo para criar ou editar um endereço.</p>
+
+<form action="<%= endereco ? '/enderecos/' + endereco.id + '?_method=PUT' : '/enderecos' %>" method="POST" class="needs-validation" novalidate>
+    <div class="row g-3">
+        <div class="col-sm-6">
+            <label for="user_id" class="form-label">Usuário</label>
+            <select class="form-select" id="user_id" name="user_id" required>
+                <option value="">Selecione um usuário...</option>
+                <% if (locals.usuarios && usuarios.length > 0) { %>
+                    <% usuarios.forEach(usuario => { %>
+                        <option value="<%= usuario.id %>" <%= (locals.endereco && endereco.user_id == usuario.id) ? 'selected' : '' %>>
+                            <%= usuario.nome %> (ID: <%= usuario.id %>)
+                        </option>
+                    <% }) %>
+                <% } %>
+            </select>
+            <div class="invalid-feedback">
+                Por favor, selecione um usuário.
+            </div>
+        </div>
+
+        <div class="col-12">
+            <label for="rua" class="form-label">Rua</label>
+            <input type="text" class="form-control" id="rua" name="rua" placeholder="Ex: Av. Paulista" value="<%= endereco ? endereco.rua : '' %>" required>
+            <div class="invalid-feedback">
+                O nome da rua é obrigatório.
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <label for="numero" class="form-label">Número</label>
+            <input type="text" class="form-control" id="numero" name="numero" placeholder="Ex: 1000" value="<%= endereco ? endereco.numero : '' %>" required>
+            <div class="invalid-feedback">
+                O número é obrigatório.
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <label for="cep" class="form-label">CEP</label>
+            <input type="text" class="form-control" id="cep" name="cep" placeholder="Ex: 01310-100" value="<%= endereco ? endereco.cep : '' %>" required>
+            <div class="invalid-feedback">
+                O CEP é obrigatório.
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <label for="cidade" class="form-label">Cidade</label>
+            <input type="text" class="form-control" id="cidade" name="cidade" placeholder="Ex: São Paulo" value="<%= endereco ? endereco.cidade : '' %>" required>
+            <div class="invalid-feedback">
+                A cidade é obrigatória.
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <label for="estado" class="form-label">Estado</label>
+            <input type="text" class="form-control" id="estado" name="estado" placeholder="Ex: SP" value="<%= endereco ? endereco.estado : '' %>" required>
+            <div class="invalid-feedback">
+                O estado é obrigatório.
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-4">
+
+    <button class="w-100 btn btn-primary btn-lg" type="submit">
+        <%= endereco ? 'Atualizar Endereço' : 'Salvar Endereço' %>
+    </button>
 </form>
