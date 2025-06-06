@@ -9,10 +9,4 @@ router.get('/:id', TarefaController.obterTarefa);
 router.put('/:id', TarefaController.editarTarefa);
 router.delete('/:id', TarefaController.excluirTarefa);
 
-// Rotas de API para Fetch (frontend dinâmico)
-router.get('/api', TarefaController.apiListar);
-router.post('/api', TarefaController.apiCriar);
-router.put('/api/:id', TarefaController.apiAtualizar);
-router.delete('/api/:id', TarefaController.apiDeletar);
-
 module.exports = router;

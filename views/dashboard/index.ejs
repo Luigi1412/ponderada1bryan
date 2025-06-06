@@ -1,0 +1,138 @@
+<%- contentFor('body') %>
+
+<div class="mb-6">
+    <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+        Dashboard
+    </h2>
+    <p class="mt-1 text-sm text-gray-600">
+        Visão geral do seu sistema. Monitore as principais métricas e atividades recentes.
+    </p>
+</div>
+
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 gap-6 mb-6 sm:grid-cols-2 lg:grid-cols-4">
+    <!-- Tasks Card -->
+    <div class="p-6 bg-white rounded-lg shadow">
+        <div class="flex items-center">
+            <div class="flex-shrink-0 bg-indigo-500 rounded-md p-3">
+                <i class="fas fa-tasks text-white"></i>
+            </div>
+            <div class="ml-4 flex-1">
+                <p class="text-sm font-medium text-gray-500 truncate">Total de Tarefas</p>
+                <p class="text-2xl font-semibold text-gray-900"><%= counts.tarefas %></p>
+            </div>
+        </div>
+    </div>
+    <!-- Projects Card -->
+    <div class="p-6 bg-white rounded-lg shadow">
+        <div class="flex items-center">
+            <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
+                <i class="fas fa-project-diagram text-white"></i>
+            </div>
+            <div class="ml-4 flex-1">
+                <p class="text-sm font-medium text-gray-500 truncate">Total de Projetos</p>
+                <p class="text-2xl font-semibold text-gray-900"><%= counts.projetos %></p>
+            </div>
+        </div>
+    </div>
+    <!-- Users Card -->
+    <div class="p-6 bg-white rounded-lg shadow">
+        <div class="flex items-center">
+            <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
+                <i class="fas fa-users text-white"></i>
+            </div>
+            <div class="ml-4 flex-1">
+                <p class="text-sm font-medium text-gray-500 truncate">Total de Usuários</p>
+                <p class="text-2xl font-semibold text-gray-900"><%= counts.usuarios %></p>
+            </div>
+        </div>
+    </div>
+    <!-- Rooms Card -->
+    <div class="p-6 bg-white rounded-lg shadow">
+        <div class="flex items-center">
+            <div class="flex-shrink-0 bg-red-500 rounded-md p-3">
+                <i class="fas fa-door-open text-white"></i>
+            </div>
+            <div class="ml-4 flex-1">
+                <p class="text-sm font-medium text-gray-500 truncate">Total de Quartos</p>
+                <p class="text-2xl font-semibold text-gray-900"><%= counts.rooms %></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Row: Recent Activity and Chart -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Recent Activity -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Atividade Recente</h3>
+            <ul class="divide-y divide-gray-200">
+                <% if (recentTasks.length > 0) { %>
+                    <% recentTasks.forEach(task => { %>
+                        <li class="py-4 flex items-center justify-between">
+                            <div class="flex flex-col">
+                                <p class="text-sm font-medium text-indigo-600"><%= task.nome %></p>
+                                <span class="text-xs text-gray-500">
+                                    <%= new Date(task.created_at).toLocaleDateString('pt-BR') %> - 
+                                    <span class="font-semibold <%= task.status === 'Concluída' ? 'text-green-600' : 'text-yellow-600' %>">
+                                        <%= task.status %>
+                                    </span>
+                                </span>
+                            </div>
+                            <a href="/editar-tarefa/<%= task.id %>" class="text-sm text-indigo-500 hover:underline">Ver</a>
+                        </li>
+                    <% }); %>
+                <% } else { %>
+                    <li class="py-4 text-center text-gray-500">Nenhuma atividade recente.</li>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Task Status Chart -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Status das Tarefas</h3>
+        <canvas id="taskStatusChart"></canvas>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const ctx = document.getElementById('taskStatusChart').getContext('2d');
+        const taskStatusData = {
+            labels: ['Pendente', 'Em Progresso', 'Concluída'],
+            datasets: [{
+                label: 'Status das Tarefas',
+                data: [
+                    <%= taskStatusCounts.Pendente %>,
+                    <%= taskStatusCounts['Em Progresso'] %>,
+                    <%= taskStatusCounts.Concluída %>
+                ],
+                backgroundColor: [
+                    'rgb(251, 191, 36)', // Amarelo (Pendente)
+                    'rgb(59, 130, 246)', // Azul (Em Progresso)
+                    'rgb(16, 185, 129)'  // Verde (Concluída)
+                ],
+                hoverOffset: 4
+            }]
+        };
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: taskStatusData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: false,
+                        text: 'Distribuição de Tarefas por Status'
+                    }
+                }
+            },
+        });
+    });
+</script> 

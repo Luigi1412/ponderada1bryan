@@ -19,12 +19,48 @@ const TarefaModel = {
     }
   },
 
-  // Busca todas as tarefas
-  async getAll() {
-    const query = 'SELECT * FROM Tarefa ORDER BY created_at DESC;';
+  // Busca todas as tarefas com filtros opcionais
+  async getAll(filtros = {}) {
+    let query = `
+      SELECT 
+        t.*,
+        p.nome as projeto_nome,
+        u.nome as responsavel_nome
+      FROM Tarefa t
+      LEFT JOIN projetos p ON t.projeto_id = p.id
+      LEFT JOIN Usuario u ON t.responsavel_id = u.id
+    `;
+
+    const whereClauses = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (filtros.search) {
+      whereClauses.push(`t.nome ILIKE $${paramIndex++}`);
+      values.push(`%${filtros.search}%`);
+    }
+    if (filtros.status) {
+      whereClauses.push(`t.status = $${paramIndex++}`);
+      values.push(filtros.status);
+    }
+    if (filtros.projeto_id) {
+      whereClauses.push(`t.projeto_id = $${paramIndex++}`);
+      values.push(filtros.projeto_id);
+    }
+    if (filtros.responsavel_id) {
+      whereClauses.push(`t.responsavel_id = $${paramIndex++}`);
+      values.push(filtros.responsavel_id);
+    }
+
+    if (whereClauses.length > 0) {
+      query += ' WHERE ' + whereClauses.join(' AND ');
+    }
+
+    query += ' ORDER BY t.created_at DESC;';
+
     try {
-      const result = await pool.query(query);
-      return result.rows; // Retorna lista de tarefas
+      const result = await pool.query(query, values);
+      return result.rows;
     } catch (err) {
       console.error('Erro ao buscar todas as tarefas no model:', err.message);
       throw err;
@@ -33,10 +69,19 @@ const TarefaModel = {
 
   // Busca uma tarefa pelo ID
   async getById(id) {
-    const query = 'SELECT * FROM Tarefa WHERE id = $1;';
+    const query = `
+      SELECT 
+        t.*,
+        p.nome as projeto_nome,
+        u.nome as responsavel_nome
+      FROM Tarefa t
+      LEFT JOIN projetos p ON t.projeto_id = p.id
+      LEFT JOIN Usuario u ON t.responsavel_id = u.id
+      WHERE t.id = $1;
+    `;
     try {
       const result = await pool.query(query, [id]);
-      return result.rows[0]; // Retorna a tarefa encontrada ou undefined
+      return result.rows[0];
     } catch (err) {
       console.error(`Erro ao buscar tarefa por id ${id} no model:`, err.message);
       throw err;

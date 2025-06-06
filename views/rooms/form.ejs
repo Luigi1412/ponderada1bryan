@@ -1,9 +1,127 @@
-<% layout('layout') %>
-<h1><%= room ? 'Editar Quarto' : 'Novo Quarto' %></h1>
-<form action="<%= room ? '/rooms/' + room.id + '?_method=PUT' : '/rooms' %>" method="POST">
-  <label>Número: <input type="number" name="numero" value="<%= room ? room.numero : '' %>" required></label><br>
-  <label>Descrição: <input type="text" name="descricao" value="<%= room ? room.descricao : '' %>"></label><br>
-  <label>Capacidade: <input type="number" name="capacidade" value="<%= room ? room.capacidade : '' %>" required></label><br>
-  <label>Categoria: <input type="number" name="categoria_id" value="<%= room ? room.categoria_id : '' %>" required></label><br>
-  <button type="submit"><%= room ? 'Atualizar' : 'Criar' %></button>
-</form>
+<%- contentFor('body') %>
+
+<!-- Header -->
+<div class="md:flex md:items-center md:justify-between mb-6">
+    <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate" id="form-title">
+            Novo Quarto
+        </h2>
+    </div>
+</div>
+
+<!-- Form -->
+<div class="bg-white shadow rounded-lg">
+    <form id="room-form" class="space-y-6 p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <label for="numero_quarto" class="block text-sm font-medium text-gray-700">Nº do Quarto <span class="text-red-500">*</span></label>
+                <input type="text" name="numero_quarto" id="numero_quarto" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+            </div>
+            <div>
+                <label for="preco_por_noite" class="block text-sm font-medium text-gray-700">Preço / Noite <span class="text-red-500">*</span></label>
+                <input type="number" name="preco_por_noite" id="preco_por_noite" required step="0.01" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+            </div>
+            <div>
+                <label for="status" class="block text-sm font-medium text-gray-700">Status <span class="text-red-500">*</span></label>
+                <select name="status" id="status" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    <option>Disponível</option>
+                    <option>Ocupado</option>
+                    <option>Manutenção</option>
+                </select>
+            </div>
+        </div>
+
+        <div>
+            <label for="categoria_quarto_id" class="block text-sm font-medium text-gray-700">Categoria <span class="text-red-500">*</span></label>
+            <select name="categoria_quarto_id" id="categoria_quarto_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                <option value="">Carregando categorias...</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="descricao" class="block text-sm font-medium text-gray-700">Descrição</label>
+            <textarea name="descricao" id="descricao" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"></textarea>
+        </div>
+
+        <div class="flex justify-end space-x-3 pt-4 border-t">
+            <a href="/rooms" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">Cancelar</a>
+            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Salvar Quarto</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    const form = document.getElementById('room-form');
+    const formTitle = document.getElementById('form-title');
+    const roomId = window.location.pathname.split('/').pop();
+    const isEditing = window.location.pathname.includes('editar-quarto');
+
+    async function populateCategories() {
+        const select = document.getElementById('categoria_quarto_id');
+        try {
+            const response = await fetch('/api/categorias-quartos');
+            if (!response.ok) throw new Error('Erro ao carregar categorias');
+            const categories = await response.json();
+            select.innerHTML = '<option value="">Selecione uma categoria</option>';
+            categories.forEach(cat => {
+                select.innerHTML += `<option value="${cat.id}">${cat.nome}</option>`;
+            });
+        } catch (error) {
+            select.innerHTML = '<option value="">Erro ao carregar categorias</option>';
+        }
+    }
+
+    async function loadRoom(id) {
+        try {
+            await populateCategories(); // Garante que as categorias sejam carregadas primeiro
+            const response = await fetch(`/api/rooms/${id}`);
+            if (!response.ok) throw new Error('Erro ao carregar quarto');
+            const room = await response.json();
+            document.getElementById('numero_quarto').value = room.numero_quarto;
+            document.getElementById('descricao').value = room.descricao;
+            document.getElementById('preco_por_noite').value = room.preco_por_noite;
+            document.getElementById('status').value = room.status;
+            document.getElementById('categoria_quarto_id').value = room.categoria_quarto_id;
+        } catch (error) {
+            showToast('Erro ao carregar dados do quarto', 'error');
+        }
+    }
+
+    if (isEditing) {
+        formTitle.textContent = 'Editar Quarto';
+        loadRoom(roomId);
+    } else {
+        populateCategories();
+    }
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = {
+            numero_quarto: document.getElementById('numero_quarto').value,
+            descricao: document.getElementById('descricao').value,
+            preco_por_noite: document.getElementById('preco_por_noite').value,
+            status: document.getElementById('status').value,
+            categoria_quarto_id: document.getElementById('categoria_quarto_id').value
+        };
+
+        if (!formData.numero_quarto || !formData.preco_por_noite || !formData.categoria_quarto_id) {
+            showToast('Preencha todos os campos obrigatórios.', 'error');
+            return;
+        }
+
+        try {
+            const url = isEditing ? `/api/rooms/${roomId}` : '/api/rooms';
+            const method = isEditing ? 'PUT' : 'POST';
+            const response = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+            if (!response.ok) throw new Error('Erro ao salvar quarto');
+            showToast(isEditing ? 'Quarto atualizado!' : 'Quarto criado!');
+            setTimeout(() => window.location.href = '/rooms', 1500);
+        } catch (error) {
+            showToast('Erro ao salvar quarto', 'error');
+        }
+    });
+</script>

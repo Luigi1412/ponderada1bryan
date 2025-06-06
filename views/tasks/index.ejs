@@ -6,12 +6,50 @@
         <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
             Minhas Tarefas
         </h2>
+        <p class="mt-1 text-sm text-gray-600">
+            Gerencie todas as suas tarefas, atribua responsáveis e acompanhe o progresso.
+        </p>
     </div>
     <div class="mt-4 flex md:mt-0 md:ml-4">
         <a href="/nova-tarefa" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
             <i class="fas fa-plus mr-2"></i>
             Nova Tarefa
         </a>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="bg-white p-4 rounded-lg shadow mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <!-- Search by Name -->
+        <div class="md:col-span-2">
+            <label for="search" class="block text-sm font-medium text-gray-700">Buscar por nome</label>
+            <input type="text" id="search" placeholder="Nome da tarefa..." class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+        </div>
+        <!-- Filter by Project -->
+        <div>
+            <label for="filter-project" class="block text-sm font-medium text-gray-700">Projeto</label>
+            <select id="filter-project" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                <option value="">Todos</option>
+            </select>
+        </div>
+        <!-- Filter by User -->
+        <div>
+            <label for="filter-user" class="block text-sm font-medium text-gray-700">Responsável</label>
+            <select id="filter-user" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                <option value="">Todos</option>
+            </select>
+        </div>
+        <!-- Filter by Status -->
+        <div>
+            <label for="filter-status" class="block text-sm font-medium text-gray-700">Status</label>
+            <select id="filter-status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                <option value="">Todos</option>
+                <option>Pendente</option>
+                <option>Em Progresso</option>
+                <option>Concluída</option>
+            </select>
+        </div>
     </div>
 </div>
 
@@ -22,13 +60,26 @@
 
 <!-- Task Template -->
 <template id="task-template">
-    <div class="task-card bg-white rounded-lg shadow p-6 fade-in">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-medium text-gray-900 task-title"></h3>
-            <span class="task-status px-3 py-1 rounded-full text-xs font-medium"></span>
+    <div class="task-card bg-white rounded-lg shadow p-6 fade-in flex flex-col justify-between">
+        <div>
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900 task-title"></h3>
+                <span class="task-status px-3 py-1 rounded-full text-xs font-medium"></span>
+            </div>
+            <div class="text-sm text-gray-500 space-y-2 mb-4">
+                <p>
+                    <i class="fas fa-project-diagram text-gray-400 mr-2"></i>
+                    <strong class="font-medium text-gray-600">Projeto:</strong>
+                    <span class="task-project"></span>
+                </p>
+                <p>
+                    <i class="fas fa-user text-gray-400 mr-2"></i>
+                    <strong class="font-medium text-gray-600">Responsável:</strong>
+                    <span class="task-responsible"></span>
+                </p>
+            </div>
         </div>
-        <p class="text-gray-500 mb-4 task-description line-clamp-3"></p>
-        <div class="flex items-center justify-between text-sm">
+        <div class="flex items-center justify-between text-sm border-t pt-4 mt-auto">
             <span class="text-gray-400 task-date"></span>
             <div class="flex space-x-3">
                 <button class="edit-task text-indigo-600 hover:text-indigo-900">
@@ -45,27 +96,54 @@
 </template>
 
 <script>
-    async function loadTasks() {
+    function getStatusClasses(status) {
+        const statusConfig = {
+            'Pendente': { bgColor: 'bg-yellow-100', textColor: 'text-yellow-800' },
+            'Em Progresso': { bgColor: 'bg-blue-100', textColor: 'text-blue-800' },
+            'Concluída': { bgColor: 'bg-green-100', textColor: 'text-green-800' }
+        };
+        return statusConfig[status] || { bgColor: 'bg-gray-100', textColor: 'text-gray-800' };
+    }
+
+    const searchInput = document.getElementById('search');
+    const projectFilter = document.getElementById('filter-project');
+    const userFilter = document.getElementById('filter-user');
+    const statusFilter = document.getElementById('filter-status');
+
+    async function populateSelect(url, selectElement, valueField, textField, defaultOption) {
         try {
-            const response = await fetch('/api/tarefas');
+            const response = await fetch(url);
+            const items = await response.json();
+            items.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item[valueField];
+                option.textContent = item[textField];
+                selectElement.appendChild(option);
+            });
+        } catch (error) {
+            console.error(`Erro ao popular ${defaultOption}:`, error);
+        }
+    }
+
+    async function loadTasks() {
+        const query = new URLSearchParams({
+            search: searchInput.value,
+            projeto_id: projectFilter.value,
+            responsavel_id: userFilter.value,
+            status: statusFilter.value
+        }).toString();
+
+        try {
+            const response = await fetch(`/api/tarefas?${query}`);
             if (!response.ok) throw new Error('Erro ao carregar tarefas');
-            
             const tasks = await response.json();
+            
             const container = document.getElementById('tasks-container');
             const template = document.getElementById('task-template');
-            
             container.innerHTML = '';
-            
+
             if (tasks.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-full text-center py-12">
-                        <i class="fas fa-tasks text-gray-400 text-5xl mb-4"></i>
-                        <p class="text-gray-500 text-lg">Nenhuma tarefa encontrada</p>
-                        <a href="/nova-tarefa" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
-                            Criar primeira tarefa
-                        </a>
-                    </div>
-                `;
+                container.innerHTML = `<div class="col-span-full text-center py-12"><p class="text-gray-500">Nenhuma tarefa encontrada com os filtros atuais.</p></div>`;
                 return;
             }
 
@@ -73,50 +151,51 @@
                 const clone = template.content.cloneNode(true);
                 
                 clone.querySelector('.task-title').textContent = task.nome;
-                clone.querySelector('.task-description').textContent = task.descricao;
+                clone.querySelector('.task-project').textContent = task.projeto_nome || 'N/A';
+                clone.querySelector('.task-responsible').textContent = task.responsavel_nome || 'N/A';
                 clone.querySelector('.task-date').textContent = new Date(task.created_at).toLocaleDateString('pt-BR');
                 
                 const statusElement = clone.querySelector('.task-status');
-                const statusConfig = {
-                    'Pendente': { text: 'Pendente', classes: 'bg-yellow-100 text-yellow-800' },
-                    'Em Progresso': { text: 'Em Progresso', classes: 'bg-blue-100 text-blue-800' },
-                    'Concluída': { text: 'Concluída', classes: 'bg-green-100 text-green-800' }
-                };
-                
-                const status = statusConfig[task.status] || statusConfig['Pendente'];
-                statusElement.textContent = status.text;
-                statusElement.className = `task-status px-3 py-1 rounded-full text-xs font-medium ${status.classes}`;
+                const { bgColor, textColor } = getStatusClasses(task.status);
+                statusElement.textContent = task.status;
+                statusElement.className += ` ${bgColor} ${textColor}`;
 
-                clone.querySelector('.edit-task').addEventListener('click', () => {
-                    window.location.href = `/editar-tarefa/${task.id}`;
-                });
-
-                clone.querySelector('.delete-task').addEventListener('click', async () => {
-                    if (confirm('Tem certeza que deseja excluir esta tarefa?')) {
-                        try {
-                            const response = await fetch(`/api/tarefas/${task.id}`, {
-                                method: 'DELETE'
-                            });
-                            
-                            if (!response.ok) throw new Error('Erro ao excluir tarefa');
-                            
-                            showToast('Tarefa excluída com sucesso!');
-                            loadTasks();
-                        } catch (error) {
-                            console.error('Erro ao excluir tarefa:', error);
-                            showToast('Erro ao excluir tarefa', 'error');
-                        }
-                    }
-                });
-
+                clone.querySelector('.edit-task').href = `/editar-tarefa/${task.id}`;
+                const deleteButton = clone.querySelector('.delete-task');
+                deleteButton.dataset.id = task.id;
                 container.appendChild(clone);
             });
         } catch (error) {
-            console.error('Erro ao carregar tarefas:', error);
             showToast('Erro ao carregar tarefas', 'error');
         }
     }
 
-    // Carregar tarefas quando a página carregar
-    document.addEventListener('DOMContentLoaded', loadTasks);
+    function setupEventListeners() {
+        [searchInput, projectFilter, userFilter, statusFilter].forEach(element => {
+            const event = element.tagName === 'INPUT' ? 'input' : 'change';
+            element.addEventListener(event, loadTasks);
+        });
+
+        document.getElementById('tasks-container').addEventListener('click', async (e) => {
+            if (e.target && e.target.classList.contains('delete-task')) {
+                const taskId = e.target.dataset.id;
+                if (confirm('Tem certeza que deseja excluir esta tarefa?')) {
+                    try {
+                        await fetch(`/api/tarefas/${taskId}`, { method: 'DELETE' });
+                        showToast('Tarefa excluída com sucesso!');
+                        loadTasks();
+                    } catch (error) {
+                        showToast('Erro ao excluir tarefa', 'error');
+                    }
+                }
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        populateSelect('/api/projects', projectFilter, 'id', 'nome', 'Projetos');
+        populateSelect('/api/users', userFilter, 'id', 'nome', 'Usuários');
+        loadTasks();
+        setupEventListeners();
+    });
 </script> 

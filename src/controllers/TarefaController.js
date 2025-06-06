@@ -3,11 +3,11 @@ const TarefaModel = require('../models/TarefaModel');
 // Cria uma nova tarefa
 exports.criarTarefa = async (req, res) => {
   try {
-    const { nome } = req.body;
+    const { nome, descricao, status, projeto_id, responsavel_id, data_conclusao_prevista } = req.body;
     if (!nome) {
       return res.status(400).json({ error: 'O campo nome é obrigatório.' });
     }
-    const novaTarefa = await TarefaModel.create({ nome });
+    const novaTarefa = await TarefaModel.create({ nome, descricao, status, projeto_id, responsavel_id, data_conclusao_prevista });
     res.status(201).json(novaTarefa);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -17,7 +17,11 @@ exports.criarTarefa = async (req, res) => {
 // Lista todas as tarefas
 exports.listarTarefas = async (req, res) => {
   try {
-    const tarefas = await TarefaModel.getAll();
+    // Extrai os filtros da query string
+    const { search, status, projeto_id, responsavel_id } = req.query;
+    const filtros = { search, status, projeto_id, responsavel_id };
+
+    const tarefas = await TarefaModel.getAll(filtros);
     res.status(200).json(tarefas);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -38,8 +42,8 @@ exports.obterTarefa = async (req, res) => {
 // Edita uma tarefa
 exports.editarTarefa = async (req, res) => {
   try {
-    const { nome } = req.body;
-    const tarefaAtualizada = await TarefaModel.update(req.params.id, { nome });
+    const { nome, descricao, status, projeto_id, responsavel_id, data_conclusao_prevista } = req.body;
+    const tarefaAtualizada = await TarefaModel.update(req.params.id, { nome, descricao, status, projeto_id, responsavel_id, data_conclusao_prevista });
     if (!tarefaAtualizada) return res.status(404).json({ error: 'Tarefa não encontrada.' });
     res.status(200).json(tarefaAtualizada);
   } catch (err) {
@@ -53,44 +57,6 @@ exports.excluirTarefa = async (req, res) => {
     const tarefaExcluida = await TarefaModel.delete(req.params.id);
     if (!tarefaExcluida) return res.status(404).json({ error: 'Tarefa não encontrada.' });
     res.status(200).json({ message: 'Tarefa excluída com sucesso.' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-// ==================== MÉTODOS DE API PARA FETCH ====================
-
-exports.apiListar = async (req, res) => {
-  try {
-    const tarefas = await TarefaModel.getAll();
-    res.json(tarefas);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-exports.apiCriar = async (req, res) => {
-  try {
-    const tarefa = await TarefaModel.create(req.body);
-    res.status(201).json(tarefa);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-exports.apiAtualizar = async (req, res) => {
-  try {
-    const tarefa = await TarefaModel.update(req.params.id, req.body);
-    res.json(tarefa);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-exports.apiDeletar = async (req, res) => {
-  try {
-    await TarefaModel.delete(req.params.id);
-    res.json({ message: 'Tarefa excluída' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

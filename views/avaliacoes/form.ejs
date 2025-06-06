@@ -1,30 +1,129 @@
-<% layout('layout') %>
-<h1><%= avaliacao ? 'Editar Avaliação' : 'Nova Avaliação' %></h1>
-<form id="avaliacao-form">
-  <label>Usuário: <input type="number" name="user_id" value="<%= avaliacao ? avaliacao.user_id : '' %>" required></label><br>
-  <label>Quarto: <input type="number" name="room_id" value="<%= avaliacao ? avaliacao.room_id : '' %>" required></label><br>
-  <label>Nota: <input type="number" name="nota" value="<%= avaliacao ? avaliacao.nota : '' %>" required></label><br>
-  <label>Comentário: <textarea name="comentario"><%= avaliacao ? avaliacao.comentario : '' %></textarea></label><br>
-  <label>Data: <input type="date" name="data_avaliacao" value="<%= avaliacao ? avaliacao.data_avaliacao : '' %>"></label><br>
-  <button type="submit"><%= avaliacao ? 'Atualizar' : 'Criar' %></button>
-</form>
+<%- contentFor('body') %>
+
+<!-- Header -->
+<div class="md:flex md:items-center md:justify-between mb-6">
+    <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate" id="form-title">
+            Nova Avaliação
+        </h2>
+    </div>
+</div>
+
+<!-- Form -->
+<div class="bg-white shadow rounded-lg">
+    <form id="evaluation-form" class="space-y-6 p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="room_id" class="block text-sm font-medium text-gray-700">Quarto <span class="text-red-500">*</span></label>
+                <select name="room_id" id="room_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"></select>
+            </div>
+            <div>
+                <label for="usuario_id" class="block text-sm font-medium text-gray-700">Usuário <span class="text-red-500">*</span></label>
+                <select name="usuario_id" id="usuario_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"></select>
+            </div>
+        </div>
+
+        <div>
+            <label for="nota" class="block text-sm font-medium text-gray-700">Nota (1 a 5) <span class="text-red-500">*</span></label>
+            <input type="number" name="nota" id="nota" min="1" max="5" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+        </div>
+
+        <div>
+            <label for="comentario" class="block text-sm font-medium text-gray-700">Comentário</label>
+            <textarea name="comentario" id="comentario" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"></textarea>
+        </div>
+
+        <div class="flex justify-end space-x-3 pt-4 border-t">
+            <a href="/avaliacoes" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">Cancelar</a>
+            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Salvar Avaliação</button>
+        </div>
+    </form>
+</div>
 
 <script>
-document.getElementById('avaliacao-form').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const data = {
-    user_id: this.user_id.value,
-    room_id: this.room_id.value,
-    nota: this.nota.value,
-    comentario: this.comentario.value,
-    data_avaliacao: this.data_avaliacao.value
-  };
-  const url = "<%= avaliacao ? '/api/avaliacoes/' + avaliacao.id : '/api/avaliacoes' %>";
-  const method = "<%= avaliacao ? 'PUT' : 'POST' %>";
-  fetch(url, {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  }).then(() => window.location.href = '/avaliacoes');
-});
+    const form = document.getElementById('evaluation-form');
+    const formTitle = document.getElementById('form-title');
+    const evaluationId = window.location.pathname.split('/').pop();
+    const isEditing = window.location.pathname.includes('editar-avaliacao');
+
+    async function populateSelect(url, selectId, valueField, textField, defaultOption) {
+        const select = document.getElementById(selectId);
+        select.innerHTML = `<option value="">Carregando...</option>`;
+        try {
+            const response = await fetch(url);
+            const items = await response.json();
+            select.innerHTML = `<option value="">Selecione ${defaultOption}</option>`;
+            items.forEach(item => {
+                select.innerHTML += `<option value="${item[valueField]}">${item[textField]}</option>`;
+            });
+        } catch (error) {
+            select.innerHTML = `<option value="">Erro ao carregar</option>`;
+        }
+    }
+
+    async function loadEvaluation(id) {
+        await Promise.all([
+            populateSelect('/api/rooms', 'room_id', 'id', 'numero_quarto', 'um quarto'),
+            populateSelect('/api/users', 'usuario_id', 'id', 'nome', 'um usuário')
+        ]);
+        
+        try {
+            const response = await fetch(`/api/avaliacoes/${id}`);
+            const evaluation = await response.json();
+            document.getElementById('room_id').value = evaluation.room_id;
+            document.getElementById('usuario_id').value = evaluation.usuario_id;
+            document.getElementById('nota').value = evaluation.nota;
+            document.getElementById('comentario').value = evaluation.comentario;
+            
+            // Na edição, não se pode alterar o quarto nem o usuário
+            document.getElementById('room_id').disabled = true;
+            document.getElementById('usuario_id').disabled = true;
+
+        } catch (error) {
+            showToast('Erro ao carregar dados da avaliação', 'error');
+        }
+    }
+
+    if (isEditing) {
+        formTitle.textContent = 'Editar Avaliação';
+        loadEvaluation(evaluationId);
+    } else {
+        populateSelect('/api/rooms', 'room_id', 'id', 'numero_quarto', 'um quarto');
+        populateSelect('/api/users', 'usuario_id', 'id', 'nome', 'um usuário');
+    }
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = {
+            nota: document.getElementById('nota').value,
+            comentario: document.getElementById('comentario').value.trim(),
+            room_id: document.getElementById('room_id').value,
+            usuario_id: document.getElementById('usuario_id').value,
+        };
+
+        if (!isEditing && (!formData.room_id || !formData.usuario_id)) {
+            showToast('Quarto e Usuário são obrigatórios.', 'error');
+            return;
+        }
+
+        try {
+            // Na edição, o `update` só envia nota e comentário
+            const payload = isEditing ? { nota: formData.nota, comentario: formData.comentario } : formData;
+            const url = isEditing ? `/api/avaliacoes/${evaluationId}` : '/api/avaliacoes';
+            const method = isEditing ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) throw new Error('Erro ao salvar avaliação');
+            
+            showToast(isEditing ? 'Avaliação atualizada!' : 'Avaliação criada!');
+            setTimeout(() => window.location.href = '/avaliacoes', 1500);
+        } catch (error) {
+            showToast('Erro ao salvar avaliação', 'error');
+        }
+    });
 </script>

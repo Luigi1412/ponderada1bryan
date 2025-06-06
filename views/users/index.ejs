@@ -1,61 +1,107 @@
-<% layout('layout') %>
-<div class="max-w-2xl mx-auto bg-white rounded-lg shadow p-6 mt-10 fade-in">
-  <h1 class="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
-    <i class="fas fa-user text-indigo-600"></i> Usuários
-  </h1>
-  <div class="flex gap-2 mb-6">
-    <input id="novo-nome" class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="Nome">
-    <input id="novo-email" class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="Email">
-    <button class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition" onclick="criarUsuario()">Adicionar</button>
-  </div>
-  <ul id="lista-usuarios" class="space-y-2"></ul>
+<%- contentFor('body') %>
+
+<!-- Header -->
+<div class="md:flex md:items-center md:justify-between mb-6">
+    <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+            Usuários
+        </h2>
+        <p class="mt-1 text-sm text-gray-600">
+            Adicione, edite e remova usuários que podem acessar e interagir com o sistema.
+        </p>
+    </div>
+    <div class="mt-4 flex md:mt-0 md:ml-4">
+        <a href="/novo-usuario" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <i class="fas fa-plus mr-2"></i>
+            Novo Usuário
+        </a>
+    </div>
 </div>
 
+<!-- Users Table -->
+<div class="bg-white shadow rounded-lg overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data de Criação</th>
+                <th scope="col" class="relative px-6 py-3">
+                    <span class="sr-only">Ações</span>
+                </th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200" id="users-container">
+            <!-- Users will be loaded here -->
+        </tbody>
+    </table>
+</div>
+
+<!-- User Row Template -->
+<template id="user-row-template">
+    <tr>
+        <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm font-medium text-gray-900 user-name"></div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-500 user-email"></div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            <span class="text-sm text-gray-500 user-date"></span>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <a href="#" class="edit-user text-indigo-600 hover:text-indigo-900">Editar</a>
+            <button class="delete-user text-red-600 hover:text-red-900 ml-4">Excluir</button>
+        </td>
+    </tr>
+</template>
+
 <script>
-async function carregarUsuarios() {
-  const res = await fetch('/users/api');
-  const usuarios = await res.json();
-  const lista = document.getElementById('lista-usuarios');
-  lista.innerHTML = '';
-  usuarios.forEach(usuario => {
-    const li = document.createElement('li');
-    li.className = "flex justify-between items-center bg-gray-100 rounded px-4 py-2";
-    li.innerHTML = `
-      <span class="text-gray-700">${usuario.nome} (${usuario.email})</span>
-      <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition" onclick="deletarUsuario(${usuario.id})">
-        <i class="fas fa-trash"></i> Excluir
-      </button>
-    `;
-    lista.appendChild(li);
-  });
-}
+    async function loadUsers() {
+        try {
+            const response = await fetch('/api/users');
+            if (!response.ok) throw new Error('Erro ao carregar usuários');
+            
+            const users = await response.json();
+            const container = document.getElementById('users-container');
+            const template = document.getElementById('user-row-template');
+            
+            container.innerHTML = '';
+            
+            if (users.length === 0) {
+                container.innerHTML = `<tr><td colspan="4" class="text-center py-12 text-gray-500">Nenhum usuário encontrado.</td></tr>`;
+                return;
+            }
 
-async function criarUsuario() {
-  const nome = document.getElementById('novo-nome').value;
-  const email = document.getElementById('novo-email').value;
-  if (!nome || !email) {
-    showToast('Preencha nome e email', 'error');
-    return;
-  }
-  const btn = document.querySelector('button[onclick="criarUsuario()"]');
-  btn.disabled = true;
-  await fetch('/users/api', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ nome, email })
-  });
-  btn.disabled = false;
-  document.getElementById('novo-nome').value = '';
-  document.getElementById('novo-email').value = '';
-  showToast('Usuário criado com sucesso!');
-  carregarUsuarios();
-}
+            users.forEach(user => {
+                const clone = template.content.cloneNode(true);
+                
+                clone.querySelector('.user-name').textContent = user.nome;
+                clone.querySelector('.user-email').textContent = user.email;
+                clone.querySelector('.user-date').textContent = new Date(user.created_at).toLocaleDateString('pt-BR');
+                
+                const editLink = clone.querySelector('.edit-user');
+                editLink.href = `/editar-usuario/${user.id}`;
 
-async function deletarUsuario(id) {
-  await fetch('/users/api/' + id, { method: 'DELETE' });
-  showToast('Usuário excluído com sucesso!');
-  carregarUsuarios();
-}
+                clone.querySelector('.delete-user').addEventListener('click', async () => {
+                    if (confirm('Tem certeza que deseja excluir este usuário?')) {
+                        try {
+                            const delResponse = await fetch(`/api/users/${user.id}`, { method: 'DELETE' });
+                            if (!delResponse.ok) throw new Error('Erro ao excluir usuário');
+                            showToast('Usuário excluído com sucesso!');
+                            loadUsers();
+                        } catch (error) {
+                            showToast('Erro ao excluir usuário', 'error');
+                        }
+                    }
+                });
 
-window.onload = carregarUsuarios;
+                container.appendChild(clone);
+            });
+        } catch (error) {
+            showToast('Erro ao carregar usuários', 'error');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadUsers);
 </script>

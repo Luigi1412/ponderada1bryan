@@ -1,67 +1,100 @@
-<% layout('layout') %>
-<div class="max-w-2xl mx-auto bg-white rounded-lg shadow p-6 mt-10 fade-in">
-  <h1 class="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
-    <i class="fas fa-star text-indigo-600"></i> Avaliações
-  </h1>
-  <div class="flex gap-2 mb-6 flex-wrap">
-    <input id="nova-nota" type="number" min="1" max="5" class="w-20 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="Nota">
-    <input id="novo-comentario" class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="Comentário">
-    <input id="novo-usuario" class="w-32 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="ID do usuário">
-    <input id="nova-tarefa" class="w-32 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="ID da tarefa">
-    <button class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition" onclick="criarAvaliacao()">Adicionar</button>
-  </div>
-  <ul id="lista-avaliacoes" class="space-y-2"></ul>
+<%- contentFor('body') %>
+
+<!-- Header -->
+<div class="md:flex md:items-center md:justify-between mb-6">
+    <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+            Avaliações
+        </h2>
+        <p class="mt-1 text-sm text-gray-600">
+            Veja, adicione e gerencie as avaliações dos quartos feitas pelos usuários.
+        </p>
+    </div>
+    <div class="mt-4 flex md:mt-0 md:ml-4">
+        <a href="/nova-avaliacao" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+            <i class="fas fa-plus mr-2"></i>
+            Nova Avaliação
+        </a>
+    </div>
 </div>
 
+<!-- Evaluations Grid -->
+<div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-3" id="evaluations-container">
+    <!-- Evaluations will be loaded here -->
+</div>
+
+<!-- Evaluation Card Template -->
+<template id="evaluation-template">
+    <div class="bg-white rounded-lg shadow p-6 flex flex-col justify-between">
+        <div>
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-sm font-medium text-indigo-600">Quarto: <span class="evaluation-room-number font-bold"></span></p>
+                <div class="evaluation-stars text-yellow-400"></div>
+            </div>
+            <p class="text-gray-700 italic mb-4 evaluation-comment"></p>
+        </div>
+        <div class="text-sm text-gray-500 border-t pt-4 mt-auto">
+            <p>
+                <i class="fas fa-user mr-2 text-gray-400"></i>
+                <strong class="font-medium">Usuário:</strong> <span class="evaluation-user-name"></span>
+            </p>
+            <div class="flex justify-end space-x-3 mt-4">
+                <a href="#" class="edit-evaluation text-indigo-600 hover:text-indigo-900">Editar</a>
+                <button class="delete-evaluation text-red-600 hover:text-red-900">Excluir</button>
+            </div>
+        </div>
+    </div>
+</template>
+
 <script>
-async function carregarAvaliacoes() {
-  const res = await fetch('/avaliacoes/api');
-  const avaliacoes = await res.json();
-  const lista = document.getElementById('lista-avaliacoes');
-  lista.innerHTML = '';
-  avaliacoes.forEach(avaliacao => {
-    const li = document.createElement('li');
-    li.className = "flex justify-between items-center bg-gray-100 rounded px-4 py-2";
-    li.innerHTML = `
-      <span class="text-gray-700">Nota: ${avaliacao.nota} - ${avaliacao.comentario || ''} (Usuário: ${avaliacao.usuario_id}, Tarefa: ${avaliacao.tarefa_id})</span>
-      <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition" onclick="deletarAvaliacao(${avaliacao.id})">
-        <i class="fas fa-trash"></i> Excluir
-      </button>
-    `;
-    lista.appendChild(li);
-  });
-}
+    function renderStars(rating) {
+        let stars = '';
+        for (let i = 1; i <= 5; i++) {
+            stars += `<i class="fas fa-star ${i <= rating ? '' : 'text-gray-300'}"></i>`;
+        }
+        return stars;
+    }
 
-async function criarAvaliacao() {
-  const nota = document.getElementById('nova-nota').value;
-  const comentario = document.getElementById('novo-comentario').value;
-  const usuario_id = document.getElementById('novo-usuario').value;
-  const tarefa_id = document.getElementById('nova-tarefa').value;
-  if (!nota || !usuario_id || !tarefa_id) {
-    showToast('Preencha nota, usuário e tarefa', 'error');
-    return;
-  }
-  const btn = document.querySelector('button[onclick="criarAvaliacao()"]');
-  btn.disabled = true;
-  await fetch('/avaliacoes/api', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ nota, comentario, usuario_id, tarefa_id })
-  });
-  btn.disabled = false;
-  document.getElementById('nova-nota').value = '';
-  document.getElementById('novo-comentario').value = '';
-  document.getElementById('novo-usuario').value = '';
-  document.getElementById('nova-tarefa').value = '';
-  showToast('Avaliação criada com sucesso!');
-  carregarAvaliacoes();
-}
+    async function loadEvaluations() {
+        try {
+            const response = await fetch('/api/avaliacoes');
+            if (!response.ok) throw new Error('Erro ao carregar avaliações');
+            const evaluations = await response.json();
+            
+            const container = document.getElementById('evaluations-container');
+            const template = document.getElementById('evaluation-template');
+            container.innerHTML = '';
 
-async function deletarAvaliacao(id) {
-  await fetch('/avaliacoes/api/' + id, { method: 'DELETE' });
-  showToast('Avaliação excluída com sucesso!');
-  carregarAvaliacoes();
-}
+            if (evaluations.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center py-12"><p class="text-gray-500">Nenhuma avaliação encontrada.</p></div>`;
+                return;
+            }
 
-window.onload = carregarAvaliacoes;
+            evaluations.forEach(evaluation => {
+                const clone = template.content.cloneNode(true);
+                clone.querySelector('.evaluation-room-number').textContent = evaluation.quarto_numero || 'N/A';
+                clone.querySelector('.evaluation-stars').innerHTML = renderStars(evaluation.nota);
+                clone.querySelector('.evaluation-comment').textContent = `"${evaluation.comentario}"`;
+                clone.querySelector('.evaluation-user-name').textContent = evaluation.usuario_nome || 'Anônimo';
+                
+                clone.querySelector('.edit-evaluation').href = `/editar-avaliacao/${evaluation.id}`;
+                clone.querySelector('.delete-evaluation').addEventListener('click', async () => {
+                    if (confirm('Tem certeza que deseja excluir esta avaliação?')) {
+                        try {
+                            await fetch(`/api/avaliacoes/${evaluation.id}`, { method: 'DELETE' });
+                            showToast('Avaliação excluída com sucesso!');
+                            loadEvaluations();
+                        } catch (error) {
+                            showToast('Erro ao excluir avaliação', 'error');
+                        }
+                    }
+                });
+                container.appendChild(clone);
+            });
+        } catch (error) {
+            showToast('Erro ao carregar avaliações', 'error');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadEvaluations);
 </script>

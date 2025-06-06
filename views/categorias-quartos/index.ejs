@@ -1,61 +1,91 @@
-<% layout('layout') %>
-<div class="max-w-2xl mx-auto bg-white rounded-lg shadow p-6 mt-10 fade-in">
-  <h1 class="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
-    <i class="fas fa-layer-group text-indigo-600"></i> Categorias de Quarto
-  </h1>
-  <div class="flex gap-2 mb-6">
-    <input id="novo-nome" class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="Nome da categoria">
-    <input id="nova-descricao" class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="Descrição">
-    <button class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition" onclick="criarCategoria()">Adicionar</button>
-  </div>
-  <ul id="lista-categorias" class="space-y-2"></ul>
+<%- contentFor('body') %>
+
+<!-- Header -->
+<div class="md:flex md:items-center md:justify-between mb-6">
+    <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+            Categorias de Quartos
+        </h2>
+        <p class="mt-1 text-sm text-gray-600">
+            Crie categorias para classificar os quartos, como "Standard", "Luxo" ou "Suíte".
+        </p>
+    </div>
+    <div class="mt-4 flex md:mt-0 md:ml-4">
+        <a href="/nova-categoria-quarto" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+            <i class="fas fa-plus mr-2"></i>
+            Nova Categoria
+        </a>
+    </div>
 </div>
 
+<!-- Categories Table -->
+<div class="bg-white shadow rounded-lg overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
+                <th scope="col" class="relative px-6 py-3"><span class="sr-only">Ações</span></th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200" id="categories-container">
+            <!-- Categories will be loaded here -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Category Row Template -->
+<template id="category-row-template">
+    <tr>
+        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 category-name"></td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 category-description"></td>
+        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <a href="#" class="edit-category text-indigo-600 hover:text-indigo-900">Editar</a>
+            <button class="delete-category text-red-600 hover:text-red-900 ml-4">Excluir</button>
+        </td>
+    </tr>
+</template>
+
 <script>
-async function carregarCategorias() {
-  const res = await fetch('/categorias-quartos/api');
-  const categorias = await res.json();
-  const lista = document.getElementById('lista-categorias');
-  lista.innerHTML = '';
-  categorias.forEach(categoria => {
-    const li = document.createElement('li');
-    li.className = "flex justify-between items-center bg-gray-100 rounded px-4 py-2";
-    li.innerHTML = `
-      <span class="text-gray-700">${categoria.nome} - ${categoria.descricao || ''}</span>
-      <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition" onclick="deletarCategoria(${categoria.id})">
-        <i class="fas fa-trash"></i> Excluir
-      </button>
-    `;
-    lista.appendChild(li);
-  });
-}
+    async function loadCategories() {
+        try {
+            const response = await fetch('/api/categorias-quartos');
+            if (!response.ok) throw new Error('Erro ao carregar categorias');
+            const categories = await response.json();
+            
+            const container = document.getElementById('categories-container');
+            const template = document.getElementById('category-row-template');
+            container.innerHTML = '';
+            
+            if (categories.length === 0) {
+                container.innerHTML = `<tr><td colspan="3" class="text-center py-12 text-gray-500">Nenhuma categoria encontrada.</td></tr>`;
+                return;
+            }
 
-async function criarCategoria() {
-  const nome = document.getElementById('novo-nome').value;
-  const descricao = document.getElementById('nova-descricao').value;
-  if (!nome) {
-    showToast('Preencha o nome da categoria', 'error');
-    return;
-  }
-  const btn = document.querySelector('button[onclick="criarCategoria()"]');
-  btn.disabled = true;
-  await fetch('/categorias-quartos/api', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ nome, descricao })
-  });
-  btn.disabled = false;
-  document.getElementById('novo-nome').value = '';
-  document.getElementById('nova-descricao').value = '';
-  showToast('Categoria criada com sucesso!');
-  carregarCategorias();
-}
+            categories.forEach(category => {
+                const clone = template.content.cloneNode(true);
+                clone.querySelector('.category-name').textContent = category.nome;
+                clone.querySelector('.category-description').textContent = category.descricao;
+                clone.querySelector('.edit-category').href = `/editar-categoria-quarto/${category.id}`;
+                clone.querySelector('.delete-category').addEventListener('click', async () => {
+                    if (confirm(`Excluir a categoria "${category.nome}"?`)) {
+                        try {
+                            const delResponse = await fetch(`/api/categorias-quartos/${category.id}`, { method: 'DELETE' });
+                            if (!delResponse.ok) throw new Error('Erro ao excluir categoria');
+                            showToast('Categoria excluída com sucesso!');
+                            loadCategories();
+                        } catch (error) {
+                            showToast('Erro ao excluir categoria. Pode estar em uso por um quarto.', 'error');
+                        }
+                    }
+                });
 
-async function deletarCategoria(id) {
-  await fetch('/categorias-quartos/api/' + id, { method: 'DELETE' });
-  showToast('Categoria excluída com sucesso!');
-  carregarCategorias();
-}
+                container.appendChild(clone);
+            });
+        } catch (error) {
+            showToast('Erro ao carregar categorias', 'error');
+        }
+    }
 
-window.onload = carregarCategorias;
+    document.addEventListener('DOMContentLoaded', loadCategories);
 </script>

@@ -1,61 +1,110 @@
-<% layout('layout') %>
-<div class="max-w-2xl mx-auto bg-white rounded-lg shadow p-6 mt-10 fade-in">
-  <h1 class="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
-    <i class="fas fa-door-open text-indigo-600"></i> Quartos
-  </h1>
-  <div class="flex gap-2 mb-6">
-    <input id="novo-nome" class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="Nome do quarto">
-    <input id="nova-descricao" class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="Descrição">
-    <button class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition" onclick="criarRoom()">Adicionar</button>
-  </div>
-  <ul id="lista-rooms" class="space-y-2"></ul>
+<%- contentFor('body') %>
+
+<!-- Header -->
+<div class="md:flex md:items-center md:justify-between mb-6">
+    <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+            Quartos
+        </h2>
+        <p class="mt-1 text-sm text-gray-600">
+            Cadastre e gerencie os quartos disponíveis, seus preços, status e categorias.
+        </p>
+    </div>
+    <div class="mt-4 flex md:mt-0 md:ml-4">
+        <a href="/novo-quarto" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+            <i class="fas fa-plus mr-2"></i>
+            Novo Quarto
+        </a>
+    </div>
 </div>
 
+<!-- Rooms Table -->
+<div class="bg-white shadow rounded-lg overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nº</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço / Noite</th>
+                <th scope="col" class="relative px-6 py-3"><span class="sr-only">Ações</span></th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200" id="rooms-container">
+            <!-- Rooms will be loaded here -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Room Row Template -->
+<template id="room-row-template">
+    <tr>
+        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 room-number"></td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 room-category"></td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            <span class="room-status px-2 inline-flex text-xs leading-5 font-semibold rounded-full"></span>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 room-price"></td>
+        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <a href="#" class="edit-room text-indigo-600 hover:text-indigo-900">Editar</a>
+            <button class="delete-room text-red-600 hover:text-red-900 ml-4">Excluir</button>
+        </td>
+    </tr>
+</template>
+
 <script>
-async function carregarRooms() {
-  const res = await fetch('/rooms/api');
-  const rooms = await res.json();
-  const lista = document.getElementById('lista-rooms');
-  lista.innerHTML = '';
-  rooms.forEach(room => {
-    const li = document.createElement('li');
-    li.className = "flex justify-between items-center bg-gray-100 rounded px-4 py-2";
-    li.innerHTML = `
-      <span class="text-gray-700">${room.nome} - ${room.descricao || ''}</span>
-      <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition" onclick="deletarRoom(${room.id})">
-        <i class="fas fa-trash"></i> Excluir
-      </button>
-    `;
-    lista.appendChild(li);
-  });
-}
+    const statusConfig = {
+        'Disponível': { classes: 'bg-green-100 text-green-800' },
+        'Ocupado': { classes: 'bg-red-100 text-red-800' },
+        'Manutenção': { classes: 'bg-yellow-100 text-yellow-800' }
+    };
 
-async function criarRoom() {
-  const nome = document.getElementById('novo-nome').value;
-  const descricao = document.getElementById('nova-descricao').value;
-  if (!nome) {
-    showToast('Preencha o nome do quarto', 'error');
-    return;
-  }
-  const btn = document.querySelector('button[onclick="criarRoom()"]');
-  btn.disabled = true;
-  await fetch('/rooms/api', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ nome, descricao })
-  });
-  btn.disabled = false;
-  document.getElementById('novo-nome').value = '';
-  document.getElementById('nova-descricao').value = '';
-  showToast('Quarto criado com sucesso!');
-  carregarRooms();
-}
+    async function loadRooms() {
+        try {
+            const response = await fetch('/api/rooms');
+            if (!response.ok) throw new Error('Erro ao carregar quartos');
+            const rooms = await response.json();
+            
+            const container = document.getElementById('rooms-container');
+            const template = document.getElementById('room-row-template');
+            container.innerHTML = '';
+            
+            if (rooms.length === 0) {
+                container.innerHTML = `<tr><td colspan="5" class="text-center py-12 text-gray-500">Nenhum quarto encontrado.</td></tr>`;
+                return;
+            }
 
-async function deletarRoom(id) {
-  await fetch('/rooms/api/' + id, { method: 'DELETE' });
-  showToast('Quarto excluído com sucesso!');
-  carregarRooms();
-}
+            rooms.forEach(room => {
+                const clone = template.content.cloneNode(true);
+                clone.querySelector('.room-number').textContent = room.numero_quarto;
+                clone.querySelector('.room-category').textContent = room.categoria_quarto_nome || 'N/A';
+                clone.querySelector('.room-price').textContent = `R$ ${parseFloat(room.preco_por_noite).toFixed(2)}`;
+                
+                const statusElement = clone.querySelector('.room-status');
+                statusElement.textContent = room.status;
+                const config = statusConfig[room.status] || { classes: 'bg-gray-100 text-gray-800' };
+                statusElement.className += ` ${config.classes}`;
 
-window.onload = carregarRooms;
+                clone.querySelector('.edit-room').href = `/editar-quarto/${room.id}`;
+                clone.querySelector('.delete-room').addEventListener('click', async () => {
+                    if (confirm(`Excluir quarto Nº ${room.numero_quarto}?`)) {
+                        try {
+                            const delResponse = await fetch(`/api/rooms/${room.id}`, { method: 'DELETE' });
+                            if (!delResponse.ok) throw new Error('Erro ao excluir quarto');
+                            showToast('Quarto excluído com sucesso!');
+                            loadRooms();
+                        } catch (error) {
+                            showToast('Erro ao excluir quarto', 'error');
+                        }
+                    }
+                });
+
+                container.appendChild(clone);
+            });
+        } catch (error) {
+            showToast('Erro ao carregar quartos', 'error');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadRooms);
 </script>
