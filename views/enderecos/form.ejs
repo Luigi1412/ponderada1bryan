@@ -1,13 +1,12 @@
-<% layout('layout') %>
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2"><%= endereco ? 'Editar Endereço' : 'Novo Endereço' %></h1>
 </div>
 <p>Preencha os campos abaixo para criar ou editar um endereço.</p>
 
-<form action="<%= endereco ? '/enderecos/' + endereco.id + '?_method=PUT' : '/enderecos' %>" method="POST" class="needs-validation" novalidate>
-    <div class="row g-3">
-        <div class="col-sm-6">
-            <label for="user_id" class="form-label">Usuário</label>
+<form action="<%= endereco ? '/enderecos/api/' + endereco.id : '/enderecos/api' %>" method="POST" id="endereco-form" class="needs-validation" novalidate>
+    <div class="row g-3 mb-3">
+        <div class="col-12">
+            <label for="user_id" class="form-label fw-bold">Usuário</label>
             <select class="form-select" id="user_id" name="user_id" required>
                 <option value="">Selecione um usuário...</option>
                 <% if (locals.usuarios && usuarios.length > 0) { %>
@@ -22,51 +21,49 @@
                 Por favor, selecione um usuário.
             </div>
         </div>
-
-        <div class="col-12">
-            <label for="rua" class="form-label">Rua</label>
-            <input type="text" class="form-control" id="rua" name="rua" placeholder="Ex: Av. Paulista" value="<%= endereco ? endereco.rua : '' %>" required>
-            <div class="invalid-feedback">
-                O nome da rua é obrigatório.
+    </div>
+    
+    <div class="card p-3">
+        <h5 class="card-title mb-3">Detalhes do Endereço</h5>
+        <div class="row g-3">
+            <div class="col-md-9">
+                <label for="rua" class="form-label fw-bold">Rua</label>
+                <input type="text" class="form-control" id="rua" name="rua" placeholder="Ex: Av. Paulista" value="<%= endereco ? endereco.rua : '' %>" required>
+                <div class="invalid-feedback">O nome da rua é obrigatório.</div>
             </div>
-        </div>
-
-        <div class="col-sm-6">
-            <label for="numero" class="form-label">Número</label>
-            <input type="text" class="form-control" id="numero" name="numero" placeholder="Ex: 1000" value="<%= endereco ? endereco.numero : '' %>" required>
-            <div class="invalid-feedback">
-                O número é obrigatório.
+            <div class="col-md-3">
+                <label for="numero" class="form-label fw-bold">Número</label>
+                <input type="text" class="form-control" id="numero" name="numero" placeholder="Ex: 1000" value="<%= endereco ? endereco.numero : '' %>" required>
+                <div class="invalid-feedback">O número é obrigatório.</div>
             </div>
-        </div>
-
-        <div class="col-sm-6">
-            <label for="cep" class="form-label">CEP</label>
-            <input type="text" class="form-control" id="cep" name="cep" placeholder="Ex: 01310-100" value="<%= endereco ? endereco.cep : '' %>" required>
-            <div class="invalid-feedback">
-                O CEP é obrigatório.
+            <div class="col-md-5">
+                <label for="cidade" class="form-label fw-bold">Cidade</label>
+                <input type="text" class="form-control" id="cidade" name="cidade" placeholder="Ex: São Paulo" value="<%= endereco ? endereco.cidade : '' %>" required>
+                <div class="invalid-feedback">A cidade é obrigatória.</div>
             </div>
-        </div>
-
-        <div class="col-sm-6">
-            <label for="cidade" class="form-label">Cidade</label>
-            <input type="text" class="form-control" id="cidade" name="cidade" placeholder="Ex: São Paulo" value="<%= endereco ? endereco.cidade : '' %>" required>
-            <div class="invalid-feedback">
-                A cidade é obrigatória.
+            <div class="col-md-4">
+                <label for="estado" class="form-label fw-bold">Estado</label>
+                <input type="text" class="form-control" id="estado" name="estado" placeholder="Ex: SP" value="<%= endereco ? endereco.estado : '' %>" required>
+                <div class="invalid-feedback">O estado é obrigatório.</div>
             </div>
-        </div>
-
-        <div class="col-sm-6">
-            <label for="estado" class="form-label">Estado</label>
-            <input type="text" class="form-control" id="estado" name="estado" placeholder="Ex: SP" value="<%= endereco ? endereco.estado : '' %>" required>
-            <div class="invalid-feedback">
-                O estado é obrigatório.
+            <div class="col-md-3">
+                <label for="cep" class="form-label fw-bold">CEP</label>
+                <input type="text" class="form-control" id="cep" name="cep" placeholder="Ex: 01310-100" value="<%= endereco ? endereco.cep : '' %>" required>
+                <div class="invalid-feedback">O CEP é obrigatório.</div>
             </div>
         </div>
     </div>
 
     <hr class="my-4">
 
-    <button class="w-100 btn btn-primary btn-lg" type="submit">
-        <%= endereco ? 'Atualizar Endereço' : 'Salvar Endereço' %>
-    </button>
+    <div class="d-flex justify-content-end">
+        <a href="/enderecos" class="btn btn-secondary me-2">Cancelar</a>
+        <button class="btn btn-primary" type="submit">
+            <%= endereco ? 'Atualizar Endereço' : 'Salvar Endereço' %>
+        </button>
+    </div>
 </form>
+
+<script>
+// Lógica para carregar usuários e submeter o formulário via fetch
+</script>

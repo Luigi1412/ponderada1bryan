@@ -98,6 +98,50 @@ app.get('/editar-avaliacao/:id', (req, res) => {
     res.render('avaliacoes/form');
 });
 
+app.get('/enderecos', (req, res) => {
+    res.render('enderecos/index', {
+        title: 'Endereços',
+        description: 'Listagem de endereços dos usuários.',
+        enderecos: []
+    });
+});
+
+app.get('/enderecos/novo', (req, res) => {
+    res.render('enderecos/form', { endereco: null, title: 'Novo Endereço' });
+});
+
+app.get('/enderecos/editar/:id', (req, res) => {
+    // Lógica para buscar o endereço por id do banco de dados
+    const endereco = { id: req.params.id, rua: 'Exemplo', numero: '123', cidade: 'Exemplo', estado: 'EX', cep: '00000-000', usuario_id: 1 };
+    res.render('enderecos/form', { endereco: endereco, title: 'Editar Endereço' });
+});
+
+app.get('/pagamentos', (req, res) => {
+    res.render('pagamentos/index', {
+        title: 'Pagamentos',
+        description: 'Listagem de pagamentos realizados.',
+        pagamentos: []
+    });
+});
+
+app.get('/pagamentos/novo', (req, res) => {
+    res.render('pagamentos/form', { 
+        pagamento: null, 
+        title: 'Novo Pagamento',
+        description: 'Preencha os dados para criar um novo pagamento.' 
+    });
+});
+
+app.get('/pagamentos/editar/:id', (req, res) => {
+    // Lógica para buscar o pagamento por id do banco de dados
+    const pagamento = { id: req.params.id, valor: '100.00', metodo_pagamento: 'Cartão de Crédito', status: 'aprovado', usuario_id: 1 };
+    res.render('pagamentos/form', { 
+        pagamento: pagamento, 
+        title: 'Editar Pagamento',
+        description: 'Altere os dados do pagamento.' 
+    });
+});
+
 app.listen(port, () => {
   console.log(`Servidor rodando na porta ${port}`);
 }); 

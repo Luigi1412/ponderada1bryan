@@ -1,112 +1,87 @@
-# Sistema de Gerenciamento de Tarefas e Reservas
+# Sistema de Gerenciamento Hoteleiro Completo
 
-Este é um sistema completo de gerenciamento de tarefas, reservas de hotel e entidades relacionadas, com frontend em EJS e Tailwind CSS e backend em Node.js, utilizando Express e PostgreSQL.
+Este é um sistema de gerenciamento para hotéis, permitindo o controle de tarefas, reservas, usuários e outras entidades. O projeto foi construído com Node.js, Express e PostgreSQL no backend, e uma interface visual interativa com EJS, CSS (Bootstrap) e a Fetch API no frontend.
 
-## Funcionalidades
+## Funcionalidades Principais
 
-- CRUD completo para Usuários, Quartos, Reservas, Endereços, Avaliações, Pagamentos, Categorias de Quartos, Projetos, Tarefas e Comentários
-- Interface web moderna com EJS e Tailwind CSS
-- API RESTful para integração com outros sistemas
-- Validação de dados e tratamento de erros
-- Estrutura MVC clara
+- **Interface Visual Completa:** Páginas para listar, criar e editar todas as entidades do sistema.
+- **CRUD para Múltiplas Entidades:** Gerenciamento de Usuários, Quartos, Reservas, Endereços, Avaliações, Pagamentos, etc.
+- **API RESTful:** Endpoints de API para todas as funcionalidades, permitindo integração com outros sistemas.
+- **Estrutura MVC:** Código organizado, separando a lógica de negócio (Models), as rotas (Routes) e a apresentação (Views/Controllers).
 
 ## Tecnologias Utilizadas
 
-- Node.js
-- Express
-- EJS (Template Engine)
-- PostgreSQL
-- Tailwind CSS
-- Fetch API
-- Supabase (opcional)
-- express-ejs-layouts
+- **Backend:** Node.js, Express
+- **Frontend:** EJS, Bootstrap, Fetch API
+- **Banco de Dados:** PostgreSQL
+- **Utilitários:** `express-ejs-layouts`, `nodemon`
 
-## Pré-requisitos
+## Como Executar o Projeto
 
-- Node.js (versão 14 ou superior)
-- PostgreSQL
-- NPM ou Yarn
+Siga os passos abaixo para configurar e rodar o ambiente de desenvolvimento local.
 
-## Configuração
+### 1. Pré-requisitos
 
-1. Clone o repositório:
+- Node.js (versão 18 ou superior)
+- npm (geralmente vem com o Node.js)
+- Uma instância do PostgreSQL em execução.
+
+### 2. Instalação
+
 ```bash
+# Clone o repositório para a sua máquina local
 git clone https://github.com/seu-usuario/seu-repositorio.git
-cd seu-repositorio
-```
 
-2. Instale as dependências:
-```bash
+# Navegue até o diretório do projeto
+cd seu-repositorio
+
+# Instale todas as dependências do projeto
 npm install
 ```
 
-3. Configure as variáveis de ambiente:
-Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
-```
+### 3. Configuração do Banco de Dados
+
+Crie um arquivo chamado `.env` na raiz do projeto. Ele guardará as credenciais de acesso ao seu banco de dados. Copie e cole o conteúdo abaixo, substituindo pelos seus dados:
+
+```env
+# Credenciais do PostgreSQL
 DB_USER=seu_usuario_postgres
 DB_PASSWORD=sua_senha_postgres
-DB_NAME=nome_do_banco
 DB_HOST=localhost
 DB_PORT=5432
+DB_NAME=nome_do_seu_banco
 ```
 
-4. Inicialize o banco de dados:
-```bash
-npm run init-db
-```
+### 4. Execução
 
-## Executando o Sistema
+Com tudo configurado, inicie o servidor com o comando:
 
-1. Inicie o servidor de desenvolvimento:
 ```bash
+# Este comando usa o nodemon para reiniciar o servidor automaticamente
+# sempre que um arquivo for alterado.
 npm run dev
 ```
 
-2. Acesse o sistema no navegador:
-```
-http://localhost:3000
-```
+O servidor estará disponível em `http://localhost:3000`.
 
 ## Estrutura de Pastas
 
+A estrutura segue o padrão Model-View-Controller (MVC) para garantir a separação de responsabilidades:
+
 ```
-src/
-  controllers/
-  models/
-  routes/
-  services/
-  middlewares/
-  server.js
-views/
-  layout.ejs
-  partials/
-  users/
-  rooms/
-  reservations/
-  enderecos/
-  avaliacoes/
-  pagamentos/
-  categorias-quartos/
-  projetos/
-  tarefas/
-  comentarios/
-public/
-  (assets estáticos)
+/
+├── public/           # Arquivos estáticos (CSS, imagens)
+├── src/              # Código-fonte do backend
+│   ├── controllers/  # Lógica de controle (o que acontece quando uma rota é acessada)
+│   ├── models/       # Interação com o banco de dados
+│   ├── routes/       # Definição das rotas da aplicação (views e API)
+│   └── server.js     # Arquivo principal de configuração do servidor
+├── views/            # Arquivos de template EJS (a interface visual)
+├── .env.example      # Exemplo de arquivo de variáveis de ambiente
+├── package.json      # Dependências e scripts do projeto
+└── README.md         # Este arquivo
 ```
 
-## Endpoints Principais
+## Documentação da API
 
-Veja o arquivo [WAD.md](./WAD.md) para a lista completa de endpoints e exemplos de uso.
-
-## Testes
-
-- Teste os endpoints usando o arquivo `requests.http` ou ferramentas como Postman.
-- Teste as views acessando as rotas no navegador.
-
-## Contribuição
-
-1. Faça o fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
-3. Commit suas mudanças (`git commit -am 'Adiciona nova feature'`)
-4. Push para a branch (`git push origin feature/nova-feature`)
-5. Crie um Pull Request
+Para mais detalhes sobre os endpoints da API, consulte o arquivo `WAD.md`.

@@ -52,13 +52,34 @@ const PagamentoModel = {
   },
 
   // Atualiza um pagamento
-  async update(id, { reserva_id, valor, metodo, status }) {
+  async update(id, fields) {
+    const { reserva_id, valor, metodo, status } = fields;
+
+    // Busca o pagamento atual para mesclar com os novos dados
+    const currentPagamento = await this.getById(id);
+    if (!currentPagamento) {
+        throw new Error('Pagamento não encontrado');
+    }
+
     const query = `
       UPDATE pagamentos 
-      SET reserva_id = $1, valor = $2, metodo = $3, status = $4
-      WHERE id = $5 RETURNING *;
+      SET 
+        reserva_id = $1, 
+        valor = $2, 
+        metodo = $3, 
+        status = $4
+      WHERE id = $5 
+      RETURNING *;
     `;
-    const values = [reserva_id, valor, metodo, status, id];
+    
+    const values = [
+      reserva_id || currentPagamento.reserva_id,
+      valor || currentPagamento.valor,
+      metodo || currentPagamento.metodo,
+      status || currentPagamento.status,
+      id
+    ];
+
     try {
       const result = await pool.query(query, values);
       return result.rows[0];

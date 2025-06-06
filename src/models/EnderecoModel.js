@@ -57,13 +57,38 @@ const EnderecoModel = {
   },
 
   // Atualiza um endereço
-  async update(id, { user_id, rua, numero, cidade, estado, cep }) {
+  async update(id, fields) {
+    const { user_id, rua, numero, cidade, estado, cep } = fields;
+    
+    // Busca o endereço atual para mesclar com os novos dados
+    const currentEndereco = await this.getById(id);
+    if (!currentEndereco) {
+        throw new Error('Endereço não encontrado');
+    }
+
     const query = `
       UPDATE enderecos 
-      SET user_id = $1, rua = $2, numero = $3, cidade = $4, estado = $5, cep = $6
-      WHERE id = $7 RETURNING *;
+      SET 
+        user_id = $1, 
+        rua = $2, 
+        numero = $3, 
+        cidade = $4, 
+        estado = $5, 
+        cep = $6
+      WHERE id = $7 
+      RETURNING *;
     `;
-    const values = [user_id, rua, numero, cidade, estado, cep, id];
+    
+    const values = [
+      user_id || currentEndereco.user_id,
+      rua || currentEndereco.rua,
+      numero || currentEndereco.numero,
+      cidade || currentEndereco.cidade,
+      estado || currentEndereco.estado,
+      cep || currentEndereco.cep,
+      id
+    ];
+
     try {
       const result = await pool.query(query, values);
       return result.rows[0];

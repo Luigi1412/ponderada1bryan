@@ -128,6 +128,53 @@ public/
 
 ![Diagrama MVC](https://github.com/kterra/Inteli-2024-1B/blob/main/materiais/ponderada-2/exemplo-arq-v2.jpg)
 
+## Parte 3: Interface Visual e Integração Frontend-Backend
+
+Nesta etapa, o foco foi dar vida ao sistema, construindo uma interface visual completa e interativa que se comunica com o backend.
+
+### 1. Construção das Views com EJS
+
+Criei páginas EJS para cada entidade principal do sistema, permitindo a visualização e manipulação dos dados diretamente pelo navegador.
+
+- **Páginas de Listagem (`index.ejs`):** Exibem todos os registros de uma entidade em uma tabela.
+- **Páginas de Formulário (`form.ejs`):** Permitem criar um novo registro ou editar um existente.
+
+**Exemplo de Views Criadas:**
+
+- **Tela de Listagem de Endereços:**
+  *Aqui, eu exibo todos os endereços cadastrados, com opções para editar ou excluir cada um.*
+  `[INSERIR PRINT DA TELA /enderecos]`
+
+- **Formulário de Endereço:**
+  *Este formulário permite cadastrar um novo endereço ou atualizar um existente, com validação de campos.*
+  `[INSERIR PRINT DA TELA /enderecos/novo]`
+
+- **Tela de Listagem de Pagamentos:**
+  *Similarmente, esta tela mostra o histórico de pagamentos.*
+  `[INSERIR PRINT DA TELA /pagamentos]`
+
+- **Formulário de Pagamento:**
+  *Formulário para registrar ou editar um pagamento, associado a uma reserva.*
+  `[INSERIR PRINT DA TELA /pagamentos/novo]`
+
+### 2. Integração com Fetch API
+
+Para tornar a interface dinâmica, utilizei a **Fetch API** do JavaScript. As ações de criar, editar e excluir em todas as páginas de formulário e listagem agora acontecem de forma assíncrona, comunicando-se com as rotas `/api/...` do backend sem a necessidade de recarregar a página.
+
+### 3. Estilização com Bootstrap
+
+Toda a interface foi estilizada utilizando o framework **Bootstrap**. Isso garantiu:
+- **Layout Responsivo:** O sistema se adapta a diferentes tamanhos de tela.
+- **Componentes Modernos:** Usei componentes como *Cards*, *Modals* e *Grids* para organizar a informação de forma clara.
+- **Feedback Visual:** Botões, links e campos de formulário possuem estados visuais (hover, focus, disabled), melhorando a experiência do usuário.
+
+### 4. Mudanças Relevantes no Backend
+
+Para suportar a nova interface, fiz ajustes importantes no backend:
+
+- **Criação de Rotas para Views:** Em `src/server.js`, adicionei rotas específicas para renderizar as páginas EJS (ex: `app.get('/enderecos', ...)`) e passar os dados necessários.
+- **Refatoração dos Models:** Ajustei os métodos `update` de todos os modelos (`UserModel`, `EnderecoModel`, etc.) para que eles atualizem apenas os campos enviados, evitando a perda de dados caso um campo opcional não seja preenchido no formulário. Isso tornou o backend mais robusto e seguro.
+
 ## Testes
 
 - Teste os endpoints com o arquivo `requests.http` ou Postman.

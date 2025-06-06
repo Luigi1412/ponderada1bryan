@@ -22,7 +22,10 @@ const ReviewModel = {
   async getAll() {
     const query = `
       SELECT 
-        a.*,
+        a.id,
+        a.nota,
+        a.comentario,
+        a.data_avaliacao,
         u.nome as usuario_nome,
         r.numero as quarto_numero
       FROM avaliacoes a
@@ -43,7 +46,10 @@ const ReviewModel = {
   async getById(id) {
     const query = `
       SELECT 
-        a.*,
+        a.id,
+        a.nota,
+        a.comentario,
+        a.data_avaliacao,
         u.nome as usuario_nome,
         r.numero as quarto_numero
       FROM avaliacoes a

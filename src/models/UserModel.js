@@ -1,9 +1,9 @@
 const pool = require('../config/database');
 // Idealmente, uma biblioteca como bcrypt seria usada para hash de senhas
 
-// Model para gerenciar os usuários
+// Model para gerenciar os dados da tabela 'users'.
 const UserModel = {
-  // Cria um novo usuário
+  // Insere um novo usuário no banco de dados.
   async create({ nome, email, senha }) {
     // IMPORTANTE: Em produção, a senha DEVE ser "hasheada" antes de salvar!
     // Exemplo: const hashedPassword = await bcrypt.hash(senha, 10);
@@ -12,7 +12,10 @@ const UserModel = {
       VALUES ($1, $2, $3)
       RETURNING id, nome, email; -- Nunca retornar a senha em queries diretas
     `;
-    const values = [nome, email, senha]; // Usar hashedPassword aqui em produção
+    // Garante que a senha não seja nula, o que violaria a constraint do DB
+    const finalSenha = senha || 'default_password_change_me';
+
+    const values = [nome, email, finalSenha]; // Usar hashedPassword aqui em produção
     try {
       const result = await pool.query(query, values);
       return result.rows[0]; // Retorna o usuário criado (sem senha)
@@ -22,7 +25,7 @@ const UserModel = {
     }
   },
 
-  // Busca todos os usuários
+  // Busca todos os usuários cadastrados.
   async getAll() {
     const query = 'SELECT id, nome, email FROM users ORDER BY nome ASC;';
     try {
@@ -34,7 +37,7 @@ const UserModel = {
     }
   },
 
-  // Busca um usuário pelo ID
+  // Busca um usuário específico pelo seu ID.
   async getById(id) {
     const query = 'SELECT id, nome, email FROM users WHERE id = $1;';
     try {
@@ -46,7 +49,7 @@ const UserModel = {
     }
   },
 
-  // Busca um usuário pelo email (útil para login ou verificar duplicidade)
+  // Busca um usuário pelo email, útil para validações.
   async getByEmail(email) {
     const query = 'SELECT * FROM users WHERE email = $1;'; // Retorna todos os campos para verificação de senha no controller
     try {
@@ -58,17 +61,26 @@ const UserModel = {
     }
   },
 
-  // Atualiza um usuário existente
+  // Atualiza os dados de um usuário existente.
   async update(id, { nome, email, senha }) {
-    // IMPORTANTE: Se a senha for alterada, ela DEVE ser "hasheada".
-    const query = `
-      UPDATE users 
-      SET nome = $1, email = $2, senha = $3 
-      WHERE id = $4 RETURNING id, nome, email;
-    `;
-    const values = [nome, email, senha, id]; // Usar hashedPassword para senha aqui em produção
+    // Busca o usuário atual para não sobrescrever campos não enviados
+    const currentUser = await this.getById(id);
+    if (!currentUser) throw new Error('Usuário não encontrado');
+
+    const params = [nome || currentUser.nome, email || currentUser.email, id];
+    let query;
+
+    if (senha) {
+        // Se uma nova senha for fornecida, atualize-a
+        query = 'UPDATE users SET nome = $1, email = $2, senha = $3 WHERE id = $4 RETURNING id, nome, email;';
+        params.splice(2, 0, senha); // Adiciona a senha hasheada
+    } else {
+        // Caso contrário, mantenha a senha existente
+        query = 'UPDATE users SET nome = $1, email = $2 WHERE id = $3 RETURNING id, nome, email;';
+    }
+    
     try {
-      const result = await pool.query(query, values);
+      const result = await pool.query(query, params);
       return result.rows[0]; // Retorna o usuário atualizado (sem senha)
     } catch (err) {
       console.error(`Erro ao atualizar usuário ${id} no model:`, err.message);
@@ -76,7 +88,7 @@ const UserModel = {
     }
   },
 
-  // Exclui um usuário pelo ID
+  // Remove um usuário do banco de dados.
   async delete(id) {
     const query = 'DELETE FROM users WHERE id = $1 RETURNING id, nome, email;';
     try {
