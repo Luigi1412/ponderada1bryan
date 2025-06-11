@@ -51,24 +51,62 @@
 
     <div class="d-flex justify-content-end">
         <a href="/enderecos" class="btn btn-secondary me-2">Cancelar</a>
-        <button class="btn btn-primary" type="submit">
+        <button class="btn btn-primary" type="submit" id="submit-btn">
             <%= locals.endereco ? 'Atualizar Endereço' : 'Salvar Endereço' %>
         </button>
     </div>
 </form>
 
+<!-- Toast para feedback -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Sistema</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toast-message">
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const isEditing = <%- !!endereco %>;
+    const isEditing = <%- JSON.stringify(!!endereco) %>;
     const enderecoData = <%- JSON.stringify(endereco || null) %>;
+    const submitBtn = document.getElementById('submit-btn');
+
+    // Função para mostrar toast
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('liveToast');
+        const toastMessage = document.getElementById('toast-message');
+        toastMessage.textContent = message;
+        
+        // Remove classes anteriores
+        toast.classList.remove('bg-success', 'bg-danger', 'bg-warning');
+        
+        // Adiciona classe baseada no tipo
+        if (type === 'error') {
+            toast.classList.add('bg-danger', 'text-white');
+        } else if (type === 'warning') {
+            toast.classList.add('bg-warning');
+        } else {
+            toast.classList.add('bg-success', 'text-white');
+        }
+        
+        // Mostra o toast
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+    }
 
     async function populateUsers() {
         const select = document.getElementById('user_id');
         try {
+            console.log('Carregando usuários...');
             const response = await fetch('/api/users');
             if (!response.ok) throw new Error('Erro ao carregar usuários');
             
             const users = await response.json();
+            console.log('Usuários carregados:', users);
             
             select.innerHTML = '<option value="">Selecione um usuário...</option>';
             users.forEach(user => {
@@ -82,8 +120,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 select.value = enderecoData.user_id;
             }
         } catch (error) {
+            console.error('Erro ao carregar usuários:', error);
             select.innerHTML = '<option value="">Erro ao carregar usuários</option>';
-            console.error(error);
+            showToast('Erro ao carregar usuários', 'error');
         }
     }
 
@@ -92,21 +131,38 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('endereco-form');
     form.addEventListener('submit', async function(event) {
         event.preventDefault();
+        console.log('Formulário submetido');
+        
+        // Desabilita o botão para evitar múltiplos envios
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Salvando...';
         
         if (!form.checkValidity()) {
             event.stopPropagation();
             form.classList.add('was-validated');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<%= locals.endereco ? "Atualizar Endereço" : "Salvar Endereço" %>';
+            showToast('Por favor, preencha todos os campos obrigatórios', 'warning');
             return;
         }
 
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
         
+        // Converte user_id para número
+        data.user_id = parseInt(data.user_id);
+        
+        console.log('Dados do formulário:', data);
+        
         // Assegura que o método PUT seja usado para edição
         const method = isEditing ? 'PUT' : 'POST';
         const actionUrl = form.getAttribute('action');
 
         try {
+            console.log('Enviando requisição para:', actionUrl);
+            console.log('Método:', method);
+            console.log('Dados:', data);
+            
             const response = await fetch(actionUrl, {
                 method: method,
                 headers: {
@@ -115,15 +171,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify(data),
             });
 
+            console.log('Resposta recebida:', response.status, response.statusText);
+
             if (response.ok) {
-                window.location.href = '/enderecos';
+                showToast('Endereço salvo com sucesso!', 'success');
+                setTimeout(() => {
+                    window.location.href = '/enderecos';
+                }, 1500);
             } else {
                 const result = await response.json();
-                alert('Erro ao salvar endereço: ' + (result.error || 'Erro desconhecido'));
+                console.error('Erro na resposta:', result);
+                showToast('Erro ao salvar endereço: ' + (result.error || 'Erro desconhecido'), 'error');
             }
         } catch (error) {
             console.error('Erro na submissão:', error);
-            alert('Erro de conexão ao salvar o endereço.');
+            showToast('Erro de conexão ao salvar o endereço', 'error');
+        } finally {
+            // Reabilita o botão
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<%= locals.endereco ? "Atualizar Endereço" : "Salvar Endereço" %>';
         }
     });
 });

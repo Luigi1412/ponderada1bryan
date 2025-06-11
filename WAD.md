@@ -2,13 +2,13 @@
 
 ## Visão Geral
 
-Sistema web completo para gerenciamento de tarefas, reservas de hotel e entidades relacionadas, com arquitetura MVC, integração com PostgreSQL e interface EJS estilizada com Tailwind CSS.
+Sistema web completo para gerenciamento de tarefas, reservas de hotel e entidades relacionadas, com arquitetura MVC, integração com PostgreSQL e interface EJS estilizada com Bootstrap.
 
 ## Arquitetura
 
 - **Model:** SQL puro via `pg` para cada entidade.
 - **Controller:** Lógica de negócio, validação e resposta HTTP.
-- **View:** EJS para interface web, com layout, partials e Tailwind.
+- **View:** EJS para interface web, com layout, partials e Bootstrap.
 - **Rotas:** RESTful para API e rotas de views.
 
 ## Estrutura de Pastas
@@ -114,7 +114,7 @@ public/
 - Cada entidade possui views EJS para listagem (`index.ejs`) e formulário (`form.ejs`).
 - Layout e partials para cabeçalho e rodapé.
 - Navegação entre entidades via menu.
-- Estilização com Tailwind CSS.
+- Estilização com Bootstrap.
 
 ## Como Rodar
 
@@ -180,6 +180,116 @@ Para suportar a nova interface, fiz ajustes importantes no backend:
 - Teste os endpoints com o arquivo `requests.http` ou Postman.
 - Teste as views acessando as rotas no navegador.
 
+## Reflexão Crítica e Aprendizados
+
+### 🎯 Principais Desafios Enfrentados
+
+#### 1. Arquitetura MVC e Separação de Responsabilidades
+**Desafio:** Organizar o código seguindo padrões MVC de forma clara e escalável, mantendo a separação entre lógica de negócio, dados e apresentação.
+
+**Solução Aplicada:** 
+- Criação de estrutura clara com pastas separadas para `controllers/`, `models/` e `routes/`
+- Uso de models para encapsular toda a lógica de acesso ao banco de dados
+- Controllers focados apenas na lógica de negócio e validação
+- Views responsáveis apenas pela apresentação dos dados
+
+**Aprendizado:** A separação clara de responsabilidades facilita enormemente a manutenção e evolução do código. Cada componente tem uma função específica, tornando o sistema mais modular e testável.
+
+#### 2. Integração Frontend-Backend com Fetch API
+**Desafio:** Criar uma interface que se comunique de forma assíncrona com o backend, proporcionando uma experiência de usuário fluida sem recarregamentos de página.
+
+**Solução Aplicada:**
+- Implementação da Fetch API para todas as operações CRUD
+- Tratamento adequado de respostas JSON
+- Feedback visual imediato para o usuário
+- Validação tanto no frontend quanto no backend
+
+**Aprendizado:** A comunicação assíncrona entre frontend e backend é fundamental para aplicações web modernas. A Fetch API oferece uma interface limpa e poderosa para essa integração.
+
+#### 3. Relacionamentos Complexos entre Entidades
+**Desafio:** Gerenciar relacionamentos entre usuários, endereços, reservas, pagamentos e outras entidades, mantendo a integridade referencial.
+
+**Solução Aplicada:**
+- Uso de chaves estrangeiras no banco de dados
+- Queries JOIN para consultas relacionais
+- Validação de integridade referencial no backend
+- Interface que reflete esses relacionamentos
+
+**Aprendizado:** O design de banco de dados relacional é crucial para aplicações complexas. A modelagem correta dos relacionamentos facilita consultas eficientes e mantém a consistência dos dados.
+
+#### 4. Validação e Tratamento de Erros
+**Desafio:** Garantir que os dados sejam válidos tanto no frontend quanto no backend, proporcionando feedback claro ao usuário.
+
+**Solução Aplicada:**
+- Validação HTML5 no frontend para experiência imediata
+- Validação robusta no backend para segurança
+- Tratamento padronizado de erros com mensagens claras
+- Feedback visual diferenciado para sucessos e erros
+
+**Aprendizado:** A validação em múltiplas camadas é essencial. O frontend proporciona experiência imediata, enquanto o backend garante segurança e integridade.
+
+### ✅ Pontos que Funcionaram Bem
+
+1. **Estrutura MVC Clara:** A organização do código em models, views e controllers facilitou muito o desenvolvimento e manutenção.
+
+2. **API RESTful Consistente:** Todos os endpoints seguem padrões REST, facilitando a integração e documentação.
+
+3. **Interface Responsiva:** O uso do Bootstrap garantiu uma interface moderna e adaptável a diferentes dispositivos.
+
+4. **Comunicação Assíncrona:** A integração com Fetch API proporcionou uma experiência de usuário fluida.
+
+5. **Documentação Completa:** A documentação detalhada facilita a compreensão e evolução do sistema.
+
+### 🔧 Pontos que Gostaria de Melhorar
+
+1. **Testes Automatizados:** Implementar testes unitários e de integração para garantir a qualidade do código.
+
+2. **Autenticação e Autorização:** Adicionar sistema de login e controle de acesso aos recursos.
+
+3. **Validação Mais Robusta:** Implementar validação mais sofisticada com bibliotecas como Joi ou express-validator.
+
+4. **Tratamento de Erros Mais Elaborado:** Criar middleware específico para tratamento de erros com logging.
+
+5. **Performance:** Implementar cache e otimizações de consultas para melhorar a performance.
+
+6. **Deploy e CI/CD:** Configurar pipeline de deploy automatizado e ambiente de produção.
+
+### 📚 Aprendizados Técnicos Significativos
+
+1. **Arquitetura de Aplicações Web:** Compreensão profunda de como estruturar aplicações web escaláveis.
+
+2. **Integração com Bancos de Dados:** Experiência prática com PostgreSQL e queries SQL complexas.
+
+3. **Desenvolvimento Full-Stack:** Capacidade de trabalhar tanto no frontend quanto no backend de forma integrada.
+
+4. **Padrões de Projeto:** Aplicação prática de padrões MVC e princípios SOLID.
+
+5. **APIs RESTful:** Desenvolvimento de APIs seguindo melhores práticas e padrões estabelecidos.
+
+### 🎓 Aprendizados Conceituais
+
+1. **Importância da Documentação:** Documentação clara é fundamental para manutenção e evolução de projetos.
+
+2. **Versionamento de Código:** Git é essencial para controle de versão e colaboração.
+
+3. **Separação de Responsabilidades:** Código bem organizado é mais fácil de manter e evoluir.
+
+4. **Experiência do Usuário:** A interface deve ser intuitiva e responsiva, proporcionando feedback claro.
+
+5. **Segurança:** Validação e sanitização de dados são fundamentais para aplicações web.
+
+### 🚀 Próximos Passos
+
+Para evolução futura do projeto, gostaria de:
+
+1. **Implementar Autenticação:** Sistema de login com JWT ou sessões.
+2. **Adicionar Testes:** Cobertura completa com Jest e Supertest.
+3. **Melhorar Performance:** Implementar cache e otimizações de banco.
+4. **Deploy em Produção:** Configurar ambiente de produção com Docker.
+5. **Monitoramento:** Implementar logs e métricas de performance.
+
 ## Conclusão
 
-O sistema está pronto para uso e atende todos os requisitos da entrega.
+Este projeto representou uma jornada completa de desenvolvimento web, desde a concepção da arquitetura até a implementação de uma interface funcional e moderna. Os desafios enfrentados e as soluções aplicadas proporcionaram aprendizados valiosos sobre desenvolvimento full-stack, arquitetura de software e boas práticas de programação.
+
+O sistema está pronto para uso e demonstra competência técnica em todas as áreas abordadas: backend robusto, frontend responsivo, banco de dados bem estruturado e documentação completa. A experiência adquirida será fundamental para futuros projetos e desenvolvimento profissional.

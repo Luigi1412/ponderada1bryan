@@ -107,24 +107,97 @@ exports.apiListar = async (req, res) => {
 // Cria um novo endereço (API)
 exports.apiCriar = async (req, res) => {
   try {
-    await EnderecoModel.create(req.body);
-    res.redirect('/enderecos');
+    console.log('Dados recebidos:', req.body);
+    
+    const { user_id, rua, numero, cidade, estado, cep } = req.body;
+    
+    // Validação dos campos obrigatórios
+    if (!user_id || !rua || !numero || !cidade || !estado || !cep) {
+      return res.status(400).json({ 
+        error: 'Todos os campos são obrigatórios.',
+        missing: {
+          user_id: !user_id,
+          rua: !rua,
+          numero: !numero,
+          cidade: !cidade,
+          estado: !estado,
+          cep: !cep
+        }
+      });
+    }
+
+    const novoEndereco = await EnderecoModel.create({ 
+      user_id: parseInt(user_id), 
+      rua, 
+      numero, 
+      cidade, 
+      estado, 
+      cep 
+    });
+    
+    console.log('Endereço criado:', novoEndereco);
+    res.status(201).json({ 
+      success: true, 
+      message: 'Endereço criado com sucesso',
+      data: novoEndereco 
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Erro ao criar endereço:', err);
+    res.status(500).json({ 
+      error: 'Erro interno do servidor',
+      details: err.message 
+    });
   }
 };
 
 // Atualiza um endereço (API)
 exports.apiAtualizar = async (req, res) => {
   try {
-    const updated = await EnderecoModel.update(req.params.id, req.body);
+    console.log('Atualizando endereço ID:', req.params.id);
+    console.log('Dados recebidos:', req.body);
+    
+    const { user_id, rua, numero, cidade, estado, cep } = req.body;
+    
+    // Validação dos campos obrigatórios
+    if (!user_id || !rua || !numero || !cidade || !estado || !cep) {
+      return res.status(400).json({ 
+        error: 'Todos os campos são obrigatórios.',
+        missing: {
+          user_id: !user_id,
+          rua: !rua,
+          numero: !numero,
+          cidade: !cidade,
+          estado: !estado,
+          cep: !cep
+        }
+      });
+    }
+
+    const updated = await EnderecoModel.update(req.params.id, { 
+      user_id: parseInt(user_id), 
+      rua, 
+      numero, 
+      cidade, 
+      estado, 
+      cep 
+    });
+    
     if (updated) {
-      res.redirect('/enderecos');
+      console.log('Endereço atualizado:', updated);
+      res.json({ 
+        success: true, 
+        message: 'Endereço atualizado com sucesso',
+        data: updated 
+      });
     } else {
       res.status(404).json({ error: 'Endereço não encontrado' });
     }
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Erro ao atualizar endereço:', err);
+    res.status(500).json({ 
+      error: 'Erro interno do servidor',
+      details: err.message 
+    });
   }
 };
 
