@@ -2,44 +2,6 @@
 
 Este é um sistema completo de gerenciamento para hotéis, desenvolvido como projeto final da disciplina de Web Application Development. O sistema permite o controle completo de tarefas, reservas, usuários, endereços, avaliações, pagamentos e outras entidades relacionadas ao gerenciamento hoteleiro.
 
-## 🎥 Vídeo de Demonstração
-
-**[LINK DO VÍDEO AQUI]** - Demonstração completa do sistema (3-5 minutos)
-
-*O vídeo mostra:*
-- Apresentação do sistema em funcionamento (frontend e backend)
-- Demonstração das funcionalidades principais (cadastro, listagem, edição, exclusão)
-- Explicação da estrutura técnica (MVC, rotas, banco de dados, Fetch API)
-- Principais desafios enfrentados e soluções aplicadas
-
-## 📸 Screenshots do Sistema
-
-### Interface Principal
-![Dashboard Principal](assets/screenshots/dashboard.png)
-*Tela principal do sistema com navegação entre todas as entidades*
-
-### Gerenciamento de Usuários
-![Listagem de Usuários](assets/screenshots/users-list.png)
-*Lista todos os usuários cadastrados no sistema*
-
-![Formulário de Usuário](assets/screenshots/user-form.png)
-*Formulário para cadastrar ou editar usuários*
-
-### Gerenciamento de Endereços
-![Listagem de Endereços](assets/screenshots/addresses-list.png)
-*Visualização de todos os endereços cadastrados*
-
-![Formulário de Endereço](assets/screenshots/address-form.png)
-*Formulário para cadastrar ou editar endereços*
-
-### Gerenciamento de Reservas
-![Listagem de Reservas](assets/screenshots/reservations-list.png)
-*Controle completo de reservas de quartos*
-
-### Gerenciamento de Pagamentos
-![Listagem de Pagamentos](assets/screenshots/payments-list.png)
-*Histórico e controle de pagamentos*
-
 ## 🚀 Funcionalidades Principais
 
 ### CRUD Completo para Todas as Entidades
@@ -164,9 +126,7 @@ ponderada1bryan/
 │   └── ...                # Outras entidades
 ├── public/                # Arquivos estáticos
 │   ├── css/               # Estilos CSS
-│   ├── js/                # Scripts JavaScript
-│   └── assets/            # Imagens e outros recursos
-├── assets/                # Screenshots e documentação
+│   └── js/                # Scripts JavaScript
 ├── package.json           # Dependências e scripts
 ├── README.md              # Este arquivo
 └── WAD.md                 # Documentação técnica detalhada
@@ -231,7 +191,7 @@ curl -X POST http://localhost:3000/api/users \
 **Desafio:** Gerenciar relacionamentos complexos entre usuários, endereços, reservas e pagamentos.
 **Solução:** Uso de chaves estrangeiras no banco de dados e queries JOIN para consultas relacionais.
 
-## 📚 Aprendizados
+## 📚 Aprendizados e desafios enfrentados 
 
 ### Técnicos
 - Arquitetura MVC em Node.js com Express
@@ -255,18 +215,4 @@ curl -X POST http://localhost:3000/api/users \
 - **Testes Automatizados:** Cobertura de testes unitários e de integração
 - **Docker:** Containerização para facilitar deploy
 
-## 👨‍💻 Autor
-
-**Bryan** - Desenvolvido como projeto final da disciplina de Web Application Development.
-
-## 📄 Licença
-
-Este projeto está sob a licença ISC. Veja o arquivo `LICENSE` para mais detalhes.
-
-## 🤝 Contribuição
-
-Contribuições são bem-vindas! Por favor, abra uma issue ou pull request para sugerir melhorias.
-
----
-
-**Projeto desenvolvido para a disciplina de Web Application Development - Inteli 2024**
+## 👨‍💻 Autor: Luigi garotti 

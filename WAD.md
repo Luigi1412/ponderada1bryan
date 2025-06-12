@@ -124,10 +124,6 @@ public/
 4. Acesse `http://localhost:3000` para a interface web
 5. Use `/api` para os endpoints REST
 
-## Diagrama de Arquitetura
-
-![Diagrama MVC](https://github.com/kterra/Inteli-2024-1B/blob/main/materiais/ponderada-2/exemplo-arq-v2.jpg)
-
 ## Parte 3: Interface Visual e Integração Frontend-Backend
 
 Nesta etapa, o foco foi dar vida ao sistema, construindo uma interface visual completa e interativa que se comunica com o backend.
@@ -143,19 +139,15 @@ Criei páginas EJS para cada entidade principal do sistema, permitindo a visuali
 
 - **Tela de Listagem de Endereços:**
   *Aqui, eu exibo todos os endereços cadastrados, com opções para editar ou excluir cada um.*
-  `[INSERIR PRINT DA TELA /enderecos]`
 
 - **Formulário de Endereço:**
   *Este formulário permite cadastrar um novo endereço ou atualizar um existente, com validação de campos.*
-  `[INSERIR PRINT DA TELA /enderecos/novo]`
 
 - **Tela de Listagem de Pagamentos:**
   *Similarmente, esta tela mostra o histórico de pagamentos.*
-  `[INSERIR PRINT DA TELA /pagamentos]`
 
 - **Formulário de Pagamento:**
   *Formulário para registrar ou editar um pagamento, associado a uma reserva.*
-  `[INSERIR PRINT DA TELA /pagamentos/novo]`
 
 ### 2. Integração com Fetch API
 
