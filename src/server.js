@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
+const methodOverride = require('method-override');
 const routes = require('./routes');
 const expressEjsLayouts = require('express-ejs-layouts');
 const DashboardController = require('./controllers/DashboardController');
@@ -18,6 +19,8 @@ app.set('layout', 'layout');
 // Middlewares
 app.use(cors());
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, '../public')));
 
 // API Routes

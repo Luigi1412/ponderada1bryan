@@ -14,7 +14,15 @@ const PagamentoModel = {
       return result.rows[0];
     } catch (err) {
       console.error('Erro ao criar pagamento no model:', err.message);
-      throw err;
+      if (err.code === '23503') {
+        throw new Error('Reserva não encontrada. Verifique se a reserva existe.');
+      } else if (err.code === '23502') {
+        throw new Error('Dados obrigatórios não fornecidos.');
+      } else if (err.code === '23505') {
+        throw new Error('Pagamento duplicado.');
+      } else {
+        throw new Error('Erro interno do banco de dados: ' + err.message);
+      }
     }
   },
 

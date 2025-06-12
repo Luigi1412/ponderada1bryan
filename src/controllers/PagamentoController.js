@@ -50,10 +50,11 @@ exports.apiListar = async (req, res) => {
 // Cria um novo pagamento
 exports.apiCriar = async (req, res) => {
   try {
-    await PagamentoModel.create(req.body);
-    res.redirect('/pagamentos');
+    const pagamento = await PagamentoModel.create(req.body);
+    res.status(201).json({ success: true, data: pagamento });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Erro ao criar pagamento:', err);
+    res.status(500).json({ error: 'Erro ao criar pagamento: ' + err.message });
   }
 };
 
@@ -62,12 +63,13 @@ exports.apiAtualizar = async (req, res) => {
   try {
     const updated = await PagamentoModel.update(req.params.id, req.body);
     if (updated) {
-      res.redirect('/pagamentos');
+      res.status(200).json({ success: true, data: updated });
     } else {
       res.status(404).json({ error: 'Pagamento não encontrado' });
     }
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Erro ao atualizar pagamento:', err);
+    res.status(500).json({ error: 'Erro ao atualizar pagamento: ' + err.message });
   }
 };
 

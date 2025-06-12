@@ -7,7 +7,7 @@ exports.criarTarefa = async (req, res) => {
     if (!nome) {
       return res.status(400).json({ error: 'O campo nome é obrigatório.' });
     }
-    const novaTarefa = await TaskModel.create({ nome, descricao, status });
+    const novaTarefa = await TaskModel.create({ titulo: nome, descricao, status });
     res.status(201).json(novaTarefa);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -43,7 +43,7 @@ exports.obterTarefa = async (req, res) => {
 exports.editarTarefa = async (req, res) => {
   try {
     const { nome, descricao, status } = req.body;
-    const tarefaAtualizada = await TaskModel.update(req.params.id, { nome, descricao, status });
+    const tarefaAtualizada = await TaskModel.update(req.params.id, { titulo: nome, descricao, status });
     if (!tarefaAtualizada) return res.status(404).json({ error: 'Tarefa não encontrada.' });
     res.status(200).json(tarefaAtualizada);
   } catch (err) {

@@ -4,6 +4,9 @@
 <p><%= description %></p>
 
 <form action="<%= pagamento ? '/api/pagamentos/' + pagamento.id : '/api/pagamentos' %>" method="POST" id="pagamento-form" class="needs-validation" novalidate>
+    <% if (pagamento) { %>
+        <input type="hidden" name="_method" value="PUT">
+    <% } %>
     <div class="card p-3">
         <h5 class="card-title mb-3">Detalhes do Pagamento</h5>
         <div class="row g-3">
@@ -101,7 +104,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
         const actionUrl = form.getAttribute('action');
-        const method = form.getAttribute('method');
+        
+        // Determinar o método HTTP baseado no campo _method
+        let method = 'POST';
+        if (data._method) {
+            method = data._method.toUpperCase();
+            delete data._method; // Remover do payload
+        }
         
         console.log('Sending data to:', actionUrl, 'with method:', method);
         console.log('Payload:', data);
@@ -127,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Fetch error:', error);
-            alert('Erro de conexão ao salvar o pagamento.');
+            alert('Erro de conexão ao salvar o pagamento. Verifique se o servidor está rodando.');
         }
     });
 });
